@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Media | Mokku Squad</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ebf5fb url('img/phototeam.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #222;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      min-height: 100vh;
+      background: rgba(235, 245, 251, 0.85);
+      color: #222;
+      padding: 24px;
+    }
+    header {
+      text-align: center;
+      padding: 40px 0 20px 0;
+      position: relative;
+    }
+    .team-logo {
+      position: absolute;
+      top: 40px;
+      left: 40px;
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(13, 71, 161, 0.12);
+      background: #fff;
+      border: 3px solid #0d47a1;
+    }
+    .main-nav {
+      position: absolute;
+      top: 40px;
+      right: 40px;
+      display: flex;
+      gap: 24px;
+    }
+    .main-nav a {
+      color: #0d47a1;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.1rem;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .main-nav a:hover {
+      background: #d6eaf8;
+      color: #222;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #0d47a1;
+      margin-bottom: 0.5rem;
+    }
+    .media-section {
+      max-width: 900px;
+      margin: 3rem auto 0 auto;
+      background: #ebdef0;
+      border-radius: 18px;
+      box-shadow: 0 2px 12px rgba(22, 101, 52, 0.08);
+      padding: 32px 24px;
+    }
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      margin-top: 2rem;
+    }
+    .media-item {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 6px rgba(22, 101, 52, 0.08);
+      padding: 12px;
+      text-align: center;
+    }
+    .media-item img {
+      max-width: 100%;
+      max-height: 180px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+    }
+    .media-item img:hover {
+      box-shadow: 0 4px 16px rgba(13, 71, 161, 0.15);
+    }
+    .media-filename {
+      font-size: 1rem;
+      color: #0d47a1;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+    .media-download {
+      display: inline-block;
+      margin-top: 4px;
+      color: #fff;
+      background: #16a34a;
+      border-radius: 6px;
+      padding: 6px 18px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+    .media-download:hover {
+      background: #166534;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="img/team-logo.png" alt="Team Logo" class="team-logo" />
+      <nav class="main-nav">
+        <a href="index.html">Home</a>
+        <a href="players.html">Players</a>
+        <a href="contact.html">Contact</a>
+        <a href="tournaments.html">Tournaments</a>
+        <a href="media.html">Media</a>
+      </nav>
+      <h1>Media</h1>
+    </header>
+    <section class="media-section">
+      <div class="media-grid" id="media-grid">
+        <div class="media-item" onclick="window.location.href='media-folder.html?folder=General'" style="cursor:pointer;">
+          <img src="Dta/General/team-logo.png" alt="General Folder Logo" style="max-width:100px;max-height:100px;display:block;margin:0 auto 8px auto;" />
+          <div class="media-filename">General</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
