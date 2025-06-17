@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Login</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .login-container {
+      max-width: 400px;
+      margin: 80px auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 12px rgba(22, 101, 52, 0.08);
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .login-container input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #0d47a1;
+      font-size: 1rem;
+    }
+    .login-container button {
+      padding: 10px 24px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #0d47a1;
+      background: #0d47a1;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .login-container button:hover {
+      background: #166534;
+    }
+    .login-error {
+      color: red;
+      margin-top: 10px;
+    }
+    .team-logo {
+      position: absolute;
+      top: 40px;
+      left: 40px;
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(13, 71, 161, 0.12);
+      background: #fff;
+      border: 3px solid #0d47a1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="responsive-header">
+      <a href="index.html">
+        <img src="img/team-logo.png" alt="Team Logo" class="team-logo" />
+      </a>
+      <div class="dropdown-nav">
+        <select id="pageDropdown">
+          <option value="index.html">Home</option>
+          <option value="players.html">Players</option>
+          <option value="contact.html">Contact</option>
+          <option value="tournaments.html">Tournaments</option>
+          <option value="media.html">Media</option>
+          <option value="media-folder.html">Media Folder</option>
+        </select>
+      </div>
+      <div class="header-title-group">
+        <h1>Player Login</h1>
+        <p class="subtitle">Sri Lankan community cricket team in Holland since 2010</p>
+      </div>
+    </header>
+    <div class="login-container">
+      <h2>Login to Your Player Page</h2>
+      <input type="text" id="login-username" placeholder="Username (first name)">
+      <input type="password" id="login-password" placeholder="Password">
+      <button onclick="loginPlayer()">Login</button>
+      <div id="login-error" class="login-error"></div>
+    </div>
+  </div>
+  <script>
+    // --- Static player data (should match players.html) ---
+    const playerData = {
+      santhuru: {}, vithuran: {}, jenagan: {}, arun: {}, rion: {}, logesan: {}, mayuran: {}, don: {}, kanesh: {}, pradeep: {}, rasa: {}, sudarshan: {}, gobi: {}, vaishnavan: {}
+    };
+    function getPasswordKey(playerKey) {
+      return 'playerpass_' + playerKey;
+    }
+    function getDefaultPassword() {
+      return 'mokkuteam';
+    }
+    function loginPlayer() {
+      const username = document.getElementById('login-username').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value;
+      if (!playerData.hasOwnProperty(username)) {
+        document.getElementById('login-error').textContent = 'Incorrect username.';
+        return;
+      }
+      const savedPass = localStorage.getItem(getPasswordKey(username)) || getDefaultPassword();
+      if (password !== savedPass) {
+        document.getElementById('login-error').textContent = 'Incorrect password.';
+        return;
+      }
+      localStorage.setItem('loggedin_' + username, 'true');
+      // Redirect to player profile page
+      window.location.href = `player-profile.html?player=${username}`;
+    }
+    document.getElementById('pageDropdown').addEventListener('change', function() {
+      window.location.href = this.value;
+    });
+  </script>
+</body>
+</html>

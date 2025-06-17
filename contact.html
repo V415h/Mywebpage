@@ -37,25 +37,16 @@
       background: #fff;
       border: 3px solid #0d47a1;
     }
-    .main-nav {
+    .dropdown-nav {
       position: absolute;
       top: 40px;
       right: 40px;
-      display: flex;
-      gap: 24px;
     }
-    .main-nav a {
-      color: #0d47a1;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 1.1rem;
+    .dropdown-nav select {
       padding: 8px 16px;
+      font-size: 1.1rem;
       border-radius: 6px;
-      transition: background 0.2s, color 0.2s;
-    }
-    .main-nav a:hover {
-      background: #d6eaf8;
-      color: #222;
+      border: 1px solid #0d47a1;
     }
     h1 {
       font-size: 2.5rem;
@@ -100,20 +91,48 @@
     .contact-section button:hover {
       background: #166534;
     }
+    .header-title-group {
+      margin-top: 160px;
+      margin-bottom: 40px;
+    }
+    .subtitle {
+      font-size: 1.2rem;
+      color: #555;
+      margin-top: 0.5rem;
+    }
+    @media (max-width: 768px) {
+      .header-title-group {
+        margin-top: 120px;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      .subtitle {
+        font-size: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <img src="img/team-logo.png" alt="Team Logo" class="team-logo" />
-      <nav class="main-nav">
-        <a href="index.html">Home</a>
-        <a href="players.html">Players</a>
-        <a href="contact.html">Contact</a>
-        <a href="tournaments.html">Tournaments</a>
-        <a href="media.html">Media</a>
-      </nav>
-      <h1>Contact Mokku Squad</h1>
+    <header class="responsive-header">
+      <a href="index.html">
+        <img src="img/team-logo.png" alt="Team Logo" class="team-logo" />
+      </a>
+      <div class="dropdown-nav">
+        <select id="pageDropdown">
+          <option value="index.html">Home</option>
+          <option value="players.html">Players</option>
+          <option value="contact.html" selected>Contact</option>
+          <option value="tournaments.html">Tournaments</option>
+          <option value="media.html">Media</option>
+          <option value="media-folder.html">Media Folder</option>
+        </select>
+      </div>
+      <div class="header-title-group">
+        <h1>Contact</h1>
+        <p class="subtitle">Sri Lankan community cricket team in Holland since 2010</p>
+      </div>
     </header>
     <section class="contact-section">
       <form>
@@ -127,5 +146,10 @@
       </form>
     </section>
   </div>
+  <script>
+    document.getElementById('pageDropdown').addEventListener('change', function() {
+      window.location.href = this.value;
+    });
+  </script>
 </body>
 </html>

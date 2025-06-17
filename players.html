@@ -37,25 +37,22 @@
       background: #fff;
       border: 3px solid #0d47a1;
     }
-    .main-nav {
+    .dropdown-nav {
       position: absolute;
       top: 40px;
       right: 40px;
-      display: flex;
-      gap: 24px;
     }
-    .main-nav a {
-      color: #0d47a1;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 1.1rem;
+    #pageDropdown {
       padding: 8px 16px;
+      font-size: 1.1rem;
       border-radius: 6px;
-      transition: background 0.2s, color 0.2s;
+      border: 1px solid #0d47a1;
+      background: #fff;
+      color: #0d47a1;
+      cursor: pointer;
     }
-    .main-nav a:hover {
+    #pageDropdown:hover {
       background: #d6eaf8;
-      color: #222;
     }
     h1 {
       font-size: 2.5rem;
@@ -63,21 +60,59 @@
       color: #0d47a1;
       margin-bottom: 0.5rem;
     }
-    .players-list {
-      list-style: disc inside;
-      padding-left: 0;
-      margin: 2rem auto 0 auto;
-      max-width: 500px;
-      background: #ebdef0;
-      border-radius: 18px;
-      box-shadow: 0 2px 12px rgba(22, 101, 52, 0.08);
-      padding: 32px 24px;
+    .subtitle {
+      font-size: 1.2rem;
+      color: #555;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
     }
-    .players-list li {
-      margin-bottom: 0.5rem;
-      font-size: 1.1rem;
+    .players-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 32px 28px;
+      list-style: none;
+      padding: 0;
+      margin: 2rem auto 0 auto;
+      background: none;
+      box-shadow: none;
+      max-width: 900px;
+    }
+    .player-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 110px;
       cursor: pointer;
-      position: relative;
+      text-align: center;
+      background: rgba(255,255,255,0.92);
+      border-radius: 18px;
+      box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+      padding: 18px 8px 10px 8px;
+      transition: box-shadow 0.2s, transform 0.2s;
+      border: 1.5px solid #e0eafc;
+    }
+    .player-card:hover {
+      box-shadow: 0 4px 18px rgba(58,134,255,0.13);
+      transform: translateY(-3px) scale(1.04);
+    }
+    .player-card-img {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2.5px solid #3a86ff;
+      background: #f6f8fb;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(58,134,255,0.08);
+    }
+    .player-card-name {
+      font-size: 1.05rem;
+      color: #232946;
+      font-weight: 600;
+      margin-top: 0;
+      margin-bottom: 0;
+      word-break: break-word;
     }
     .back-link {
       display: block;
@@ -148,32 +183,26 @@
 </head>
 <body>
   <div class="container">
-    <header>
-      <img src="C:\Users\v. selvam\OneDrive - RUBIX\Documenten\Mokkupage\img\team-logo.png" alt="Team Logo" class="team-logo" />
-      <nav class="main-nav">
-        <a href="index.html">Home</a>
-        <a href="players.html">Players</a>
-        <a href="contact.html">Contact</a>
-        <a href="tournaments.html">Tournaments</a>
-        <a href="media.html">Media</a>
-      </nav>
-      <h1>Mokku Squad Players</h1>
+    <header class="responsive-header">
+      <a href="index.html">
+        <img src="img/team-logo.png" alt="Team Logo" class="team-logo" />
+      </a>
+      <div class="dropdown-nav">
+        <select id="pageDropdown">
+          <option value="index.html">Home</option>
+          <option value="players.html" selected>Players</option>
+          <option value="contact.html">Contact</option>
+          <option value="tournaments.html">Tournaments</option>
+          <option value="media.html">Media</option>
+          <option value="media-folder.html">Media Folder</option>
+        </select>
+      </div>
+      <div class="header-title-group">
+        <h1>Mokku Squad Players</h1>
+        <p class="subtitle">Sri Lankan community cricket team in Holland since 2010</p>
+      </div>
     </header>
-    <ul class="players-list">
-      <li data-player="santhuru">Santhuru Sivamoorthy (Captain, Allrounder)</li>
-      <li data-player="vithuran">Vithuran</li>
-      <li data-player="jenagan">Jenagan</li>
-      <li data-player="rion">Rion Ockers</li>
-      <li data-player="logesan">Logesan Shandralingam</li>
-      <li data-player="mayuran">Mayuran Sivamoorthy</li>
-      <li data-player="don">Don Sinthu</li>
-      <li data-player="kanesh">Kanesh</li>
-      <li data-player="pradeep">Pradeep</li>
-      <li data-player="rasa">Rasa Suji</li>
-      <li data-player="sudarshan">Sudarshan</li>
-      <li data-player="gobi">Gobi Annan</li>
-      <li data-player="vaishnavan">Vaishnavan Selvam</li>
-    </ul>
+    <ul class="players-list" id="players-list"></ul>
 
     <!-- Player Popup Modal -->
     <div id="player-modal" class="player-modal" style="display:none;">
@@ -196,7 +225,7 @@
     // Player data (add more details and images as needed)
     const playerData = {
       santhuru: {
-        name: "Santhuru Sivamoorthy (Captain, Allrounder)",
+        name: "Santhuru Sivamoorthy (Captain)",
         img: "img/players/santhuru.jpg",
         details: "Captain and allrounder. Leading the team with passion and skill."
       },
@@ -210,8 +239,13 @@
         img: "img/players/jenagan.jpg",
         details: "Fast bowler and energetic team player."
       },
+      arun: {
+        name: "Arun",
+        img: "img/players/arun.jpg",
+        details: "New team member. Details coming soon."
+      },
       rion: {
-        name: "Rion Ockers",
+        name: "Rion Ockers (WK)",
         img: "img/players/rion.jpg",
         details: "Consistent performer and motivator."
       },
@@ -286,17 +320,34 @@
       modal.style.display = 'flex';
     }
 
+    // Render player cards
+    const playersList = document.getElementById('players-list');
+    playersList.innerHTML = Object.entries(playerData).map(([key, p]) =>
+      `<li class="player-card" data-player="${key}">
+        <img src="${p.img}" alt="${p.name}" class="player-card-img">
+        <div class="player-card-name">${p.name}</div>
+      </li>`
+    ).join('');
+    // Card click event
+    document.querySelectorAll('.player-card').forEach(card => {
+      card.onclick = function() {
+        const playerKey = this.getAttribute('data-player');
+        window.location.href = `player-profile.html?player=${playerKey}`;
+      };
+    });
+
     document.querySelectorAll('.players-list li').forEach(li => {
+      let hoverTimeout;
       li.addEventListener('mouseenter', function(e) {
         if (!modalPinned) {
-          showPlayerModalForLi(this);
-          modalHovering = true;
-        } else if (modalPinned) {
-          // If pinned, allow switching to another player by clicking
-          // Do nothing on hover
+          hoverTimeout = setTimeout(() => {
+            showPlayerModalForLi(this);
+            modalHovering = true;
+          }, 1000); // 1 second delay
         }
       });
       li.addEventListener('mouseleave', function(e) {
+        clearTimeout(hoverTimeout);
         if (!modalPinned) {
           setTimeout(() => {
             if (!modalHovering) {
@@ -307,14 +358,9 @@
         modalHovering = false;
       });
       li.addEventListener('click', function(e) {
-        if (modalPinned && modal.style.display === 'flex') {
-          // If already pinned, unpin and allow hover to work again
-          modalPinned = false;
-          modal.style.display = 'none';
-        } else {
-          showPlayerModalForLi(this);
-          modalPinned = true;
-        }
+        // Go to player profile page on click
+        const key = this.getAttribute('data-player');
+        window.location.href = `player-profile.html?player=${key}`;
       });
     });
 
@@ -341,6 +387,10 @@
         modalPinned = false;
       }
     };
+
+    document.getElementById('pageDropdown').addEventListener('change', function() {
+      window.location.href = this.value;
+    });
   </script>
 </body>
 </html>

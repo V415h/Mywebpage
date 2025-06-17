@@ -37,25 +37,22 @@
       background: #fff;
       border: 3px solid #0d47a1;
     }
-    .main-nav {
+    .dropdown-nav {
       position: absolute;
       top: 40px;
       right: 40px;
-      display: flex;
-      gap: 24px;
     }
-    .main-nav a {
-      color: #0d47a1;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 1.1rem;
+    #pageDropdown {
       padding: 8px 16px;
+      font-size: 1.1rem;
       border-radius: 6px;
-      transition: background 0.2s, color 0.2s;
+      border: 1px solid #0d47a1;
+      background: #fff;
+      color: #0d47a1;
+      cursor: pointer;
     }
-    .main-nav a:hover {
+    #pageDropdown:hover {
       background: #d6eaf8;
-      color: #222;
     }
     h1 {
       font-size: 2.5rem;
@@ -123,21 +120,37 @@
     .contact-btn:hover {
       background: #166534;
     }
+    .header-title-group {
+      margin-top: 16px;
+    }
+    @media (min-width: 768px) {
+      .header-title-group {
+        margin-top: 0;
+        text-align: left;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <img src="C:\Users\v. selvam\OneDrive - RUBIX\Documenten\Mokkupage\img\team-logo.png" alt="Team Logo" class="team-logo" />
-      <nav class="main-nav">
-        <a href="index.html">Home</a>
-        <a href="players.html">Players</a>
-        <a href="contact.html">Contact</a>
-        <a href="tournaments.html">Tournaments</a>
-        <a href="media.html">Media</a>
-      </nav>
-      <h1>Mokku Squad Cricket Team</h1>
-      <p class="subtitle">Sri Lankan community cricket team in Holland since 2010</p>
+    <header class="responsive-header">
+      <a href="index.html">
+        <img src="img/team-logo.png" alt="Team Logo" class="team-logo" />
+      </a>
+      <div class="dropdown-nav">
+        <select id="pageDropdown">
+          <option value="index.html" selected>Home</option>
+          <option value="players.html">Players</option>
+          <option value="contact.html">Contact</option>
+          <option value="tournaments.html">Tournaments</option>
+          <option value="media.html">Media</option>
+          <option value="media-folder.html">Media Folder</option>
+        </select>
+      </div>
+      <div class="header-title-group">
+        <h1>Mokku Squad Cricket Team</h1>
+        <p class="subtitle">Sri Lankan community cricket team in Holland since 2010</p>
+      </div>
     </header>
     <section class="grid">
       <div class="card">
@@ -168,5 +181,10 @@
       <button class="contact-btn" onclick="window.location.href='contact.html'; return false;">Contact Us</button>
     </section>
   </div>
+  <script>
+    document.getElementById('pageDropdown').addEventListener('change', function() {
+      window.location.href = this.value;
+    });
+  </script>
 </body>
 </html>
