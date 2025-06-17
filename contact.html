@@ -114,16 +114,19 @@
     @media (max-width: 700px) {
       .responsive-header {
         display: flex;
-        flex-direction: column;
+        flex-direction: column !important;
         align-items: center;
         position: relative;
         text-align: center;
+        width: 100%;
       }
       .team-logo {
         position: static;
-        margin: 0 0 12px 0;
-        width: 90px;
-        height: 90px;
+        margin: 0 0 10px 0;
+        width: 100%;
+        max-width: 120px;
+        height: auto;
+        display: block;
       }
       .dropdown-nav {
         position: static;
