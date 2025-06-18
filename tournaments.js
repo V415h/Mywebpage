@@ -32,19 +32,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Supabase client setup
-  if (typeof supabase === 'undefined') {
-    alert('Supabase JS library is not loaded. Please check your internet connection or the script tag.');
-    return;
-  }
+  // Supabase client setup for browser
   const SUPABASE_URL = 'https://nrmauuyyzpkdpkbueuec.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ybWF1dXl5enBrZHBrYnVldWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNDgxMjUsImV4cCI6MjA2NTgyNDEyNX0.YuFbzTrc-lUggd4V-5u3sHL5tS4TmooxLpPucLCc4Mo';
-  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // Save tournaments to Supabase Storage as JSON
   async function saveTournamentsToSupabase(tournaments) {
     const file = new File([JSON.stringify(tournaments, null, 2)], 'tournaments.json', { type: 'application/json' });
-    const { data, error } = await _supabase.storage.from('uploads').upload('tournaments.json', file, { upsert: true });
+    const { data, error } = await supabase.storage.from('uploads').upload('tournaments.json', file, { upsert: true });
     if (error) {
       alert('Error saving tournaments to Supabase: ' + error.message);
     }
@@ -52,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Load tournaments from Supabase Storage
   async function loadTournamentsFromSupabase() {
-    const { data, error } = await _supabase.storage.from('uploads').download('tournaments.json');
+    const { data, error } = await supabase.storage.from('uploads').download('tournaments.json');
     if (error) return [];
     const text = await data.text();
     try {
