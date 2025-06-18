@@ -1,275 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mokku Squad Cricket Team</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #ebf5fb url('phototeam.jpg') no-repeat center center fixed;
-      background-size: cover;
-      color: #222;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      min-height: 100vh;
-      background: rgba(235, 245, 251, 0.85);
-      color: #222;
-      padding: 24px;
-    }
-    header {
-      text-align: center;
-      padding: 40px 0 20px 0;
-      position: relative;
-    }
-    .team-logo {
-      position: absolute;
-      top: 40px;
-      left: 40px;
-      width: 120px;
-      height: 120px;
-      object-fit: contain;
-      border-radius: 50%;
-      box-shadow: 0 2px 8px rgba(13, 71, 161, 0.12);
-      background: #fff;
-      border: 3px solid #0d47a1;
-    }
-    .dropdown-nav {
-      position: absolute;
-      top: 40px;
-      right: 40px;
-    }
-    #pageDropdown {
-      padding: 8px 16px;
-      font-size: 1.1rem;
-      border-radius: 6px;
-      border: 1px solid #0d47a1;
-      background: #fff;
-      color: #0d47a1;
-      cursor: pointer;
-    }
-    #pageDropdown:hover {
-      background: #d6eaf8;
-    }
-    h1 {
-      font-size: 2.5rem;
-      font-weight: bold;
-      color: #0d47a1;
-      margin-bottom: 0.5rem;
-    }
-    .subtitle {
-      margin-top: 0.5rem;
-      font-size: 1.2rem;
-      color: #444;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 24px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    @media (min-width: 768px) {
-      .grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-    .card {
-      background: #ebdef0;
-      border-radius: 18px;
-      box-shadow: 0 2px 12px rgba(22, 101, 52, 0.08);
-      padding: 24px;
-    }
-    .card h2 {
-      font-size: 1.5rem;
-      color: #0d47a1;
-      margin-bottom: 1rem;
-    }
-    .players-list {
-      list-style: disc inside;
-      padding-left: 0;
-      margin: 0;
-    }
-    .players-list li {
-      margin-bottom: 0.5rem;
-    }
-    .join-section {
-      max-width: 700px;
-      margin: 40px auto 0 auto;
-      text-align: center;
-    }
-    .join-section h2 {
-      font-size: 1.5rem;
-      color: #0d47a1;
-      margin-bottom: 1rem;
-    }
-    .contact-btn {
-      margin-top: 1rem;
-      background: #16a34a;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 32px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .contact-btn:hover {
-      background: #166534;
-    }
-    .header-title-group {
-      margin-top: 16px;
-    }
-    @media (min-width: 768px) {
-      .header-title-group {
-        margin-top: 0;
-        text-align: left;
-      }
-    }
-    @media (max-width: 700px) {
-      .responsive-header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        position: relative;
-        padding: 40px 0 20px 0;
-        width: 100%;
-      }
-      .team-logo {
-        position: static;
-        margin: 0 0 10px 0;
-        width: 100%;
-        max-width: 120px;
-        height: auto;
-        display: block;
-      }
-      .dropdown-nav {
-        position: static;
-        margin-bottom: 12px;
-        margin-top: 0;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-      }
-      .header-title-group {
-        margin-top: 0;
-        margin-bottom: 0;
-        width: 100%;
-        text-align: center;
-      }
-      h1 {
-        font-size: 2.5rem;
-        margin-bottom: 0.3rem;
-      }
-      .subtitle {
-        font-size: 1.2rem;
-      }
-    }
-    #playerLoginBtnSection {
-      max-width: 350px;
-      margin: 0 auto 18px auto;
-      text-align: center;
-    }
-    #playerLoginBtn {
-      width: 160px;
-      background: #0d47a1;
-      color: #fff;
-    }
-  </style>
+  <title>Upload to Supabase</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <h2>Upload File to Supabase</h2>
+  <input type="file" id="fileInput" />
+  <button onclick="uploadFile()">Upload</button>
+  <div id="output"></div>
+
   <script>
-    const SUPABASE_URL = 'https://nrmauuyyzpkdpkbueuec.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ybWF1dXl5enBrZHBrYnVldWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNDgxMjUsImV4cCI6MjA2NTgyNDEyNX0.YuFbzTrc-lUggd4V-5u3sHL5tS4TmooxLpPucLCc4Mo';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    // --- Show next tournaments from Supabase ---
-    async function fetchTournaments() {
-      let { data, error } = await supabase
-        .from('tournaments')
-        .select('*');
-      if (error) return [];
-      return data || [];
-    }
-    function formatDate(d) {
-      if(!d) return '';
-      const [y,m,day] = d.split('-');
-      return `${day}-${m}-${y}`;
-    }
-    async function renderNextTournaments() {
-      const list = await fetchTournaments();
-      const today = new Date();
-      const upcoming = list.filter(t => {
-        if(!t.date) return false;
-        const dt = new Date(t.date);
-        return dt >= new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      });
-      upcoming.sort((a,b) => new Date(a.date) - new Date(b.date));
-      const show = upcoming.slice(0,2);
-      const html = show.length ? show.map(t =>
-        `<div style='margin-bottom:1rem;cursor:pointer;' onclick="window.location.href='tournaments.html'">
-          <strong>${t.name}</strong><br>Date: ${formatDate(t.date)}<br>Start: ${t.time}<br>Location: ${t.location || '<em>Not set</em>'}<br>Max Players: ${t.maxPlayers}
-        </div>`
-      ).join('') : '<em>No upcoming tournaments.</em>';
-      document.getElementById('tournaments-list').innerHTML = html;
-    }
-    renderNextTournaments();
-    // --- Show next events from Supabase ---
-    async function fetchEvents() {
-      let { data, error } = await supabase
-        .from('events')
-        .select('*');
-      if (error) return [];
-      return data || [];
-    }
-    async function renderNextEvents() {
-      const list = await fetchEvents();
-      const today = new Date();
-      const upcoming = list.filter(e => {
-        if(!e.date) return false;
-        const dt = new Date(e.date);
-        return dt >= new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      });
-      upcoming.sort((a,b) => new Date(a.date) - new Date(b.date));
-      const show = upcoming.slice(0,2);
-      const html = show.length ? show.map(e =>
-        `<div style='margin-bottom:1rem;cursor:pointer;' onclick="window.location.href='events.html'">
-          <strong>${e.name}</strong><br>Date: ${formatDate(e.date)}<br>Start: ${e.time}<br>Location: ${e.location || '<em>Not set</em>'}<br>Max Guests: ${e.maxGuests}
-        </div>`
-      ).join('') : '<em>No upcoming events.</em>';
-      document.getElementById('events-list').innerHTML = html;
-    }
-    renderNextEvents();
-    // --- Login/Logout Button Logic (reuse from tournaments) ---
-    function updatePlayerLoginBtn() {
-      const user = localStorage.getItem('mokku_player_login');
-      const btnSection = document.getElementById('playerLoginBtnSection');
-      if (!btnSection) return;
-      if (!user) {
-        btnSection.innerHTML = `<button id='playerLoginBtn' style='width:160px;background:#0d47a1;color:#fff;'>Login</button>`;
-        document.getElementById('playerLoginBtn').onclick = function() {
-          localStorage.setItem('mokku_login_redirect', window.location.pathname);
-          window.location.href = 'login.html';
-        };
-      } else {
-        btnSection.innerHTML = `<span style='margin-right:12px;'>Welcome, <b>${user.charAt(0).toUpperCase() + user.slice(1)}</b></span><button id='playerLogoutBtn' style='width:100px;'>Logout</button>`;
-        document.getElementById('playerLogoutBtn').onclick = function() {
-          localStorage.removeItem('mokku_player_login');
-          localStorage.removeItem('mokku_admin');
-          updatePlayerLoginBtn();
-        };
+    // STEP 1: Paste your own Supabase URL and Key here 👇
+    const supabaseUrl = "https://nrmauuyyzpkdpkbueuec.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ybWF1dXl5enBrZHBrYnVldWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNDgxMjUsImV4cCI6MjA2NTgyNDEyNX0.YuFbzTrc-lUggd4V-5u3sHL5tS4TmooxLpPucLCc4Mo";
+
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function uploadFile() {
+      const fileInput = document.getElementById("fileInput");
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Please select a file!");
+        return;
       }
-    }
-    updatePlayerLoginBtn();
-    // Always attach dropdown event listener after render
-    var dropdown = document.getElementById('pageDropdown');
-    if(dropdown && !dropdown.hasAttribute('data-listener')) {
-      dropdown.addEventListener('change', function() {
-        window.location.href = this.value;
-      });
-      dropdown.setAttribute('data-listener', 'true');
+
+      const filePath = Date.now() + "-" + file.name;
+
+      const { data, error } = await supabase.storage
+        .from("uploads")
+        .upload(filePath, file);
+
+      if (error) {
+        console.error("Upload error:", error);
+        document.getElementById("output").innerText = "Upload failed.";
+        return;
+      }
+
+      // Get public URL
+      const { data: publicUrl } = supabase.storage
+        .from("uploads")
+        .getPublicUrl(filePath);
+
+      document.getElementById("output").innerHTML =
+        `✅ File uploaded! <br><a href="${publicUrl.publicUrl}" target="_blank">View file</a>`;
     }
   </script>
 </body>
