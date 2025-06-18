@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cricket Team - Players</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin: 3rem 2rem;
+    }
+    .player-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(21,101,192,0.08);
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 0;
+    }
+    .player-photo {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #eaf1fb;
+      margin-bottom: 1rem;
+      border: 2px solid #1565c0;
+    }
+    .player-name {
+      font-weight: bold;
+      color: #1565c0;
+      text-align: center;
+    }
+    @media (max-width: 900px) {
+      .players-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .players-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <img src="assets/logo.png" alt="Team Logo" height="48">
+    </div>
+    <nav style="display:flex;align-items:center;gap:1rem;">
+      <select class="nav-dropdown" onchange="location = this.value;">
+        <option value="index.html">Home</option>
+        <option value="events.html">Events</option>
+        <option value="tournaments.html">Tournaments</option>
+        <option value="players.html" selected>Players</option>
+      </select>
+      <button id="login-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Login</button>
+    </nav>
+  </header>
+  <main>
+    <div class="players-grid">
+      <div class="player-card" data-player="Santhuru Sivamoorthy">
+        <img class="player-photo" src="assets/players/santhuru.jpg" alt="Santhuru Sivamoorthy">
+        <div class="player-name">Santhuru Sivamoorthy <br><span style="font-size:0.9em;color:#003c8f;">(captain)</span></div>
+      </div>
+      <div class="player-card" data-player="Vithuran">
+        <img class="player-photo" src="assets/players/vithuran.jpg" alt="Vithuran">
+        <div class="player-name">Vithuran</div>
+      </div>
+      <div class="player-card" data-player="Jenagan">
+        <img class="player-photo" src="assets/players/jenagan.jpg" alt="Jenagan">
+        <div class="player-name">Jenagan</div>
+      </div>
+      <div class="player-card" data-player="Arun">
+        <img class="player-photo" src="assets/players/arun.jpg" alt="Arun">
+        <div class="player-name">Arun</div>
+      </div>
+      <div class="player-card" data-player="Rion Ockers">
+        <img class="player-photo" src="assets/players/rion.jpg" alt="Rion Ockers">
+        <div class="player-name">Rion Ockers <br><span style="font-size:0.9em;color:#003c8f;">(WK)</span></div>
+      </div>
+      <div class="player-card" data-player="Logesan Shandralingam">
+        <img class="player-photo" src="assets/players/logesan.jpg" alt="Logesan Shandralingam">
+        <div class="player-name">Logesan Shandralingam</div>
+      </div>
+      <div class="player-card" data-player="Mayuran Sivamoorthy">
+        <img class="player-photo" src="assets/players/mayuran.jpg" alt="Mayuran Sivamoorthy">
+        <div class="player-name">Mayuran Sivamoorthy</div>
+      </div>
+      <div class="player-card" data-player="Don Sinthu">
+        <img class="player-photo" src="assets/players/don.jpg" alt="Don Sinthu">
+        <div class="player-name">Don Sinthu</div>
+      </div>
+      <div class="player-card" data-player="Kanesh">
+        <img class="player-photo" src="assets/players/kanesh.jpg" alt="Kanesh">
+        <div class="player-name">Kanesh</div>
+      </div>
+      <div class="player-card" data-player="Pradeep">
+        <img class="player-photo" src="assets/players/pradeep.jpg" alt="Pradeep">
+        <div class="player-name">Pradeep</div>
+      </div>
+      <div class="player-card" data-player="Rasa Suji">
+        <img class="player-photo" src="assets/players/rasa.jpg" alt="Rasa Suji">
+        <div class="player-name">Rasa Suji</div>
+      </div>
+      <div class="player-card" data-player="Sudarshan">
+        <img class="player-photo" src="assets/players/sudarshan.jpg" alt="Sudarshan">
+        <div class="player-name">Sudarshan</div>
+      </div>
+      <div class="player-card" data-player="Gobi Annan">
+        <img class="player-photo" src="assets/players/gobi.jpg" alt="Gobi Annan">
+        <div class="player-name">Gobi Annan</div>
+      </div>
+      <div class="player-card" data-player="Vaishnavan Selvam">
+        <img class="player-photo" src="assets/players/vaishnavan.jpg" alt="Vaishnavan Selvam">
+        <div class="player-name">Vaishnavan Selvam</div>
+      </div>
+    </div>
+  </main>
+  <script src="players.js"></script>
+  <script>
+    // Login button logic
+    document.getElementById('login-btn').onclick = function() {
+      sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'index.html');
+      window.location.href = 'login.html';
+    };
+  </script>
+</body>
+</html>

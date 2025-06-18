@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cricket Team - Events</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <img src="assets/logo.png" alt="Team Logo" height="48">
+    </div>
+    <nav style="display:flex;align-items:center;gap:1rem;">
+      <select class="nav-dropdown" onchange="location = this.value;">
+        <option value="index.html">Home</option>
+        <option value="events.html" selected>Events</option>
+        <option value="tournaments.html">Tournaments</option>
+        <option value="players.html">Players</option>
+      </select>
+      <button id="login-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Login</button>
+    </nav>
+  </header>
+  <main class="main-cards">
+    <div class="card add-event">
+      <h2>Add Upcoming Event</h2>
+      <form>
+        <label for="event-name">Event Name:</label>
+        <input type="text" id="event-name" name="event-name" required>
+        <label for="event-date">Date:</label>
+        <input type="date" id="event-date" name="event-date" required>
+        <label for="event-desc">Description:</label>
+        <textarea id="event-desc" name="event-desc" rows="3"></textarea>
+        <button type="submit">Save Event</button>
+      </form>
+    </div>
+    <div class="card events-list">
+      <h2>Upcoming Events</h2>
+      <ul>
+        <li>No events yet.</li>
+      </ul>
+    </div>
+  </main>
+  <script src="events.js"></script>
+  <script>
+    // Login button logic
+    document.getElementById('login-btn').onclick = function() {
+      sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'index.html');
+      window.location.href = 'login.html';
+    };
+  </script>
+</body>
+</html>

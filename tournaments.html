@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cricket Team - Tournaments</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <img src="assets/logo.png" alt="Team Logo" height="48">
+    </div>
+    <nav style="display:flex;align-items:center;gap:1rem;">
+      <select class="nav-dropdown" onchange="location = this.value;">
+        <option value="index.html">Home</option>
+        <option value="events.html">Events</option>
+        <option value="tournaments.html" selected>Tournaments</option>
+        <option value="players.html">Players</option>
+      </select>
+      <button id="login-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Login</button>
+    </nav>
+  </header>
+  <main class="main-cards">
+    <div class="card add-event">
+      <h2>Add Official Tournament</h2>
+      <form>
+        <label for="event-name">Tournament Name:</label>
+        <input type="text" id="event-name" name="event-name" required>
+        <label for="event-date">Date:</label>
+        <input type="date" id="event-date" name="event-date" required>
+        <label for="start-time">Start Time:</label>
+        <input type="time" id="start-time" name="start-time" required>
+        <label for="max-player">Max Player:</label>
+        <input type="number" id="max-player" name="max-player" min="1" required>
+        <label for="streetname">Street Name:</label>
+        <input type="text" id="streetname" name="streetname" required>
+        <label for="postcode">Postcode:</label>
+        <input type="text" id="postcode" name="postcode" required>
+        <label for="city">City:</label>
+        <input type="text" id="city" name="city" required>
+        <label for="country">Country:</label>
+        <input type="text" id="country" name="country" required>
+        <label for="event-desc">Description:</label>
+        <textarea id="event-desc" name="event-desc" rows="3"></textarea>
+        <button type="submit">Save Tournament</button>
+      </form>
+    </div>
+    <div class="card tournaments-list">
+      <h2>Official Tournaments</h2>
+      <ul>
+        <li class="no-tournaments-msg">No tournaments yet.</li>
+      </ul>
+    </div>
+  </main>
+  <script src="tournaments.js"></script>
+  <script>
+    // Login button logic
+    document.getElementById('login-btn').onclick = function() {
+      sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'index.html');
+      window.location.href = 'login.html';
+    };
+  </script>
+</body>
+</html>

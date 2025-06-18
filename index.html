@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cricket Team - Home</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <img src="assets/logo.png" alt="Team Logo" height="48">
+    </div>
+    <nav style="display:flex;align-items:center;gap:1rem;">
+      <select class="nav-dropdown" onchange="location = this.value;">
+        <option value="index.html">Home</option>
+        <option value="events.html">Events</option>
+        <option value="tournaments.html">Tournaments</option>
+        <option value="players.html">Players</option>
+      </select>
+      <button id="login-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Login</button>
+    </nav>
+  </header>
+  <main class="main-cards">
+    <div class="card about">
+      <h2>About Team</h2>
+      <p>Welcome to our cricket team! We are passionate, competitive, and always striving for excellence on and off the field.</p>
+      <p>Mokku Squad is more than just a cricket team — it’s a vibrant part of the Sri Lankan community in the Netherlands. They play cricket primarily for fun, community bonding, and cultural connection. Beyond the pitch, the team is united in their passion for the environment — working on green projects during the summer to help keep the earth clean.</p>
+    </div>
+    <div class="card tournaments">
+      <h2>Upcoming Tournaments</h2>
+      <ul>
+        <li>Stay tuned for updates!</li>
+      </ul>
+    </div>
+    <div class="card events">
+      <h2>Upcoming Events</h2>
+      <ul>
+        <li>Stay tuned for updates!</li>
+      </ul>
+    </div>
+  </main>
+  <script>
+    // Login button logic
+    document.getElementById('login-btn').onclick = function() {
+      sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'index.html');
+      window.location.href = 'login.html';
+    };
+  </script>
+</body>
+</html>
