@@ -48,40 +48,50 @@
       color: #16a34a;
       margin-top: 10px;
     }
+    header.responsive-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      padding: 40px 0 20px 0;
+      width: 100%;
+    }
+    .team-logo {
+      position: static;
+      margin: 0 0 10px 0;
+      width: 100%;
+      max-width: 120px;
+      height: auto;
+      display: block;
+    }
+    .dropdown-nav {
+      position: static;
+      margin-bottom: 12px;
+      margin-top: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    .header-title-group {
+      margin-top: 0;
+      margin-bottom: 0;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.3rem;
+    }
+    .subtitle {
+      font-size: 1.2rem;
+    }
     @media (max-width: 700px) {
-      .responsive-header {
-        display: flex;
-        flex-direction: column !important;
-        align-items: center;
-        position: relative;
-        text-align: center;
-        width: 100%;
-      }
       .team-logo {
-        position: static;
-        margin: 0 0 10px 0;
-        width: 100%;
-        max-width: 120px;
-        height: auto;
-        display: block;
-      }
-      .dropdown-nav {
-        position: static;
-        margin-bottom: 12px;
-        margin-top: 0;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-      }
-      .header-title-group {
-        margin-top: 0;
-        margin-bottom: 0;
-        width: 100%;
-        text-align: center;
+        max-width: 90px;
       }
       h1 {
         font-size: 1.5rem;
-        margin-bottom: 0.3rem;
       }
       .subtitle {
         font-size: 1rem;
@@ -102,7 +112,7 @@
           <option value="contact.html">Contact</option>
           <option value="tournaments.html">Tournaments</option>
           <option value="media.html">Media</option>
-          <option value="media-folder.html">Media Folder</option>
+          <option value="workout-guide.html">Workout Guide</option>
         </select>
       </div>
       <div class="header-title-group">

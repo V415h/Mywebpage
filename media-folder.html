@@ -25,22 +25,32 @@
       padding: 40px 0 20px 0;
       position: relative;
     }
+    header.responsive-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      padding: 40px 0 20px 0;
+      width: 100%;
+    }
     .team-logo {
-      position: absolute;
-      top: 40px;
-      left: 40px;
-      width: 120px;
-      height: 120px;
-      object-fit: contain;
-      border-radius: 50%;
-      box-shadow: 0 2px 8px rgba(13, 71, 161, 0.12);
-      background: #fff;
-      border: 3px solid #0d47a1;
+      position: static;
+      margin: 0 0 10px 0;
+      width: 100%;
+      max-width: 120px;
+      height: auto;
+      display: block;
     }
     .dropdown-nav {
       position: absolute;
       top: 40px;
       right: 40px;
+      margin-bottom: 0;
+      margin-top: 0;
+      width: auto;
+      display: flex;
+      justify-content: flex-end;
     }
     .dropdown-nav select {
       padding: 8px 16px;
@@ -54,11 +64,34 @@
     .dropdown-nav select:hover {
       background: #d6eaf8;
     }
+    @media (max-width: 700px) {
+      .dropdown-nav {
+        position: static;
+        margin-bottom: 18px;
+        margin-top: 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+    }
+    .header-title-group {
+      margin: 8px auto 0 auto;
+      width: fit-content;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
     h1 {
       font-size: 2.5rem;
       font-weight: bold;
       color: #0d47a1;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+    .subtitle {
+      font-size: 1.2rem;
+      color: #555;
+      margin-top: 0.5rem;
     }
     .media-section {
       max-width: 900px;
@@ -154,14 +187,6 @@
       padding: 0 12px;
       z-index: 1100;
     }
-    .header-title-group {
-      margin-top: 16px;
-    }
-    .subtitle {
-      font-size: 1.2rem;
-      color: #555;
-      margin-top: 0.5rem;
-    }
     @media (max-width: 768px) {
       .header-title-group {
         margin-top: 8px;
@@ -171,39 +196,11 @@
       }
     }
     @media (max-width: 700px) {
-      .responsive-header {
-        display: flex;
-        flex-direction: column !important;
-        align-items: center;
-        position: relative;
-        text-align: center;
-        width: 100%;
-      }
       .team-logo {
-        position: static;
-        margin: 0 0 10px 0;
-        width: 100%;
-        max-width: 120px;
-        height: auto;
-        display: block;
-      }
-      .dropdown-nav {
-        position: static;
-        margin-bottom: 12px;
-        margin-top: 0;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-      }
-      .header-title-group {
-        margin-top: 0;
-        margin-bottom: 0;
-        width: 100%;
-        text-align: center;
+        max-width: 90px;
       }
       h1 {
         font-size: 1.5rem;
-        margin-bottom: 0.3rem;
       }
       .subtitle {
         font-size: 1rem;
@@ -224,7 +221,7 @@
           <option value="contact.html">Contact</option>
           <option value="tournaments.html">Tournaments</option>
           <option value="media.html">Media</option>
-          <option value="media-folder.html" selected>Media Folder</option>
+          <option value="workout-guide.html">Workout Guide</option>
         </select>
       </div>
       <div class="header-title-group">
@@ -232,7 +229,14 @@
         <p class="subtitle">Sri Lankan community cricket team in Holland since 2010</p>
       </div>
     </header>
+    <div id="playerLoginBtnSection" style="max-width:350px;margin:0 auto 18px auto;text-align:center;">
+      <button id="playerLoginBtn" style="width:160px;background:#0d47a1;color:#fff;">Login</button>
+    </div>
     <section class="media-section">
+      <div id="admin-upload-section" style="display:none; margin-bottom:18px; text-align:center;">
+        <input type="file" id="photoUploadInput" accept="image/*" style="display:inline-block;" />
+        <button id="uploadPhotoBtn" style="background:#0d47a1;color:#fff;">Upload Photo</button>
+      </div>
       <div class="media-grid" id="media-grid">
         <!-- Images will be loaded here by JS -->
       </div>
@@ -247,34 +251,104 @@
     const urlParams = new URLSearchParams(window.location.search);
     const folder = urlParams.get('folder') || 'General';
     document.getElementById('folder-title').textContent = folder;
-    // List of images in the folder (add new filenames here as you add images)
-    let images = [];
-    if(folder === 'General') {
-      images = [
-        'Dta/General/phototeam.jpg',
-        'Dta/General/team-logo.png'
-      ];
+    // Helper: get logged-in user and admin status
+    function getUser() {
+      return localStorage.getItem('mokku_player_login');
     }
-    const grid = document.getElementById('media-grid');
-    if (images.length === 0) {
-      grid.innerHTML = '<p style="color:#0d47a1;">No images found in this folder.</p>';
-    } else {
-      images.forEach(file => {
-        const fileName = file.split('/').pop();
-        const item = document.createElement('div');
-        item.className = 'media-item';
-        item.innerHTML = `
-          <div class="media-filename">${fileName}</div>
-          <img src="${file}" alt="${fileName}" />
-          <br>
-          <a href="${file}" download class="media-download">Download</a>
-        `;
-        item.querySelector('img').onclick = function() {
-          showModal(file);
-        };
-        grid.appendChild(item);
-      });
+    function isAdmin() {
+      return localStorage.getItem('mokku_admin') === 'true';
     }
+    // Helper: get images from localStorage for this folder
+    function getStoredImages(folder) {
+      const key = 'mokku_media_' + folder;
+      try {
+        return JSON.parse(localStorage.getItem(key)) || [];
+      } catch { return []; }
+    }
+    function saveStoredImages(folder, arr) {
+      const key = 'mokku_media_' + folder;
+      localStorage.setItem(key, JSON.stringify(arr));
+    }
+    // UI: Show/hide upload section for admin
+    function updateAdminUploadUI() {
+      const uploadSec = document.getElementById('admin-upload-section');
+      if (isAdmin()) {
+        uploadSec.style.display = 'block';
+      } else {
+        uploadSec.style.display = 'none';
+      }
+    }
+    // UI: Only show images if logged in
+    function renderImages() {
+      const user = getUser();
+      const grid = document.getElementById('media-grid');
+      if (!user) {
+        grid.innerHTML = '<p style="color:#0d47a1;">Please <a href="login.html">login</a> to view and download images in this folder.</p>';
+        updateAdminUploadUI();
+        return;
+      }
+      // Static images
+      let images = [];
+      if(folder === 'General') {
+        images = [
+          {src: 'Dta/General/phototeam.jpg', name: 'phototeam.jpg', isBase64: false},
+          {src: 'Dta/General/team-logo.png', name: 'team-logo.png', isBase64: false}
+        ];
+      }
+      // Uploaded images (base64)
+      const stored = getStoredImages(folder);
+      stored.forEach(img => images.push({src: img.data, name: img.name, isBase64: true}));
+      if (images.length === 0) {
+        grid.innerHTML = '<p style="color:#0d47a1;">No images found in this folder.</p>';
+      } else {
+        grid.innerHTML = '';
+        images.forEach(file => {
+          const item = document.createElement('div');
+          item.className = 'media-item';
+          item.innerHTML = `
+            <div class="media-filename">${file.name}</div>
+            <img src="${file.src}" alt="${file.name}" style="pointer-events:auto;cursor:pointer;" />
+            <br>
+            <a href="${file.src}" download="${file.name}" class="media-download">Download</a>
+          `;
+          item.querySelector('img').onclick = function() {
+            showModal(file.src);
+          };
+          grid.appendChild(item);
+        });
+      }
+      updateAdminUploadUI();
+    }
+    // Upload logic (admin only)
+    document.getElementById('uploadPhotoBtn').onclick = function() {
+      const input = document.getElementById('photoUploadInput');
+      if (!input.files || !input.files[0]) return alert('Select a photo to upload.');
+      const file = input.files[0];
+      if (file.size > 500 * 1024) {
+        alert('Image too large! Please select an image under 500KB.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64 = e.target.result;
+        let arr = getStoredImages(folder);
+        arr.push({name: file.name, data: base64});
+        try {
+          saveStoredImages(folder, arr);
+        } catch (err) {
+          if (err.name === 'QuotaExceededError' || err.code === 22) {
+            alert('Storage quota exceeded! Delete some images or use smaller files.');
+          } else {
+            alert('Error saving image: ' + err.message);
+          }
+          arr.pop(); // Remove failed image
+          return;
+        }
+        input.value = '';
+        renderImages();
+      };
+      reader.readAsDataURL(file);
+    };
     // Modal logic
     const modal = document.getElementById('img-modal');
     const modalContent = document.getElementById('modal-content');
@@ -294,6 +368,41 @@
     document.getElementById('pageDropdown').addEventListener('change', function() {
       window.location.href = this.value;
     });
+    function updatePlayerLoginBtn() {
+      const user = localStorage.getItem('mokku_player_login');
+      const btnSection = document.getElementById('playerLoginBtnSection');
+      if (!btnSection) return;
+      if (!user) {
+        btnSection.innerHTML = `<button id='playerLoginBtn' style='width:160px;background:#0d47a1;color:#fff;'>Login</button>`;
+        document.getElementById('playerLoginBtn').onclick = function() {
+          localStorage.setItem('mokku_login_redirect', window.location.pathname);
+          window.location.href = 'login.html';
+        };
+      } else {
+        btnSection.innerHTML = `<span style='margin-right:12px;'>Welcome, <b>${user.charAt(0).toUpperCase() + user.slice(1)}</b></span><button id='playerLogoutBtn' style='width:100px;'>Logout</button>`;
+        document.getElementById('playerLogoutBtn').onclick = function() {
+          localStorage.removeItem('mokku_player_login');
+          localStorage.removeItem('mokku_admin');
+          updatePlayerLoginBtn();
+        };
+      }
+    }
+    updatePlayerLoginBtn();
+    // On load, render images
+    renderImages();
+    // Prevent image open/download if not logged in
+    if (!getUser()) {
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.media-item img').forEach(img => {
+          img.style.pointerEvents = 'none';
+          img.style.opacity = '0.5';
+        });
+        document.querySelectorAll('.media-download').forEach(a => {
+          a.style.pointerEvents = 'none';
+          a.style.opacity = '0.5';
+        });
+      });
+    }
   </script>
 </body>
 </html>

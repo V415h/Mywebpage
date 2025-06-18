@@ -41,51 +41,61 @@
       margin-top: 10px;
     }
     .team-logo {
-      position: absolute;
-      top: 40px;
-      left: 40px;
-      width: 120px;
-      height: 120px;
-      object-fit: contain;
-      border-radius: 50%;
-      box-shadow: 0 2px 8px rgba(13, 71, 161, 0.12);
+      position: static;
+      margin: 0 0 10px 0;
+      width: 100%;
+      max-width: 120px;
+      height: auto;
+      display: block;
+      z-index: 1;
       background: #fff;
+      border-radius: 50%;
       border: 3px solid #0d47a1;
+      box-shadow: 0 2px 8px rgba(13, 71, 161, 0.12);
+      opacity: 1;
+      filter: none;
+    }
+    header.responsive-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      padding: 40px 0 20px 0;
+      width: 100%;
+    }
+    .dropdown-nav {
+      position: static;
+      margin-bottom: 12px;
+      margin-top: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    .header-title-group {
+      margin-top: 0;
+      margin-bottom: 0;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+      background: rgba(255,255,255,0.92);
+      padding: 0.5rem 0 0.5rem 0;
+      display: block;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.3rem;
+    }
+    .subtitle {
+      font-size: 1.2rem;
     }
     @media (max-width: 700px) {
-      .responsive-header {
-        display: flex;
-        flex-direction: column !important;
-        align-items: center;
-        position: relative;
-        text-align: center;
-        width: 100%;
-      }
       .team-logo {
-        position: static;
-        margin: 0 0 10px 0;
-        width: 100%;
-        max-width: 120px;
-        height: auto;
-        display: block;
-      }
-      .dropdown-nav {
-        position: static;
-        margin-bottom: 12px;
-        margin-top: 0;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-      }
-      .header-title-group {
-        margin-top: 0;
-        margin-bottom: 0;
-        width: 100%;
-        text-align: center;
+        max-width: 90px;
       }
       h1 {
         font-size: 1.5rem;
-        margin-bottom: 0.3rem;
       }
       .subtitle {
         font-size: 1rem;
@@ -106,7 +116,7 @@
           <option value="contact.html">Contact</option>
           <option value="tournaments.html">Tournaments</option>
           <option value="media.html">Media</option>
-          <option value="media-folder.html">Media Folder</option>
+          <option value="workout-guide.html">Workout Guide</option>
         </select>
       </div>
       <div class="header-title-group">
@@ -136,6 +146,19 @@
     function loginPlayer() {
       const username = document.getElementById('login-username').value.trim().toLowerCase();
       const password = document.getElementById('login-password').value;
+      // Allow admin login
+      if(username === 'madmin' && password === 'Mokkuadmin') {
+        localStorage.setItem('mokku_admin', 'true');
+        localStorage.setItem('mokku_player_login', 'madmin');
+        const redirect = localStorage.getItem('mokku_login_redirect');
+        if(redirect) {
+          localStorage.removeItem('mokku_login_redirect');
+          window.location.href = redirect;
+        } else {
+          window.location.href = 'tournaments.html';
+        }
+        return;
+      }
       if (!playerData.hasOwnProperty(username)) {
         document.getElementById('login-error').textContent = 'Incorrect username.';
         return;
@@ -146,8 +169,15 @@
         return;
       }
       localStorage.setItem('loggedin_' + username, 'true');
-      // Redirect to player profile page
-      window.location.href = `player-profile.html?player=${username}`;
+      localStorage.setItem('mokku_player_login', username); // Set player login for all pages
+      // Redirect to previous page if set
+      const redirect = localStorage.getItem('mokku_login_redirect');
+      if(redirect) {
+        localStorage.removeItem('mokku_login_redirect');
+        window.location.href = redirect;
+      } else {
+        window.location.href = `player-profile.html?player=${username}`;
+      }
     }
     document.getElementById('pageDropdown').addEventListener('change', function() {
       window.location.href = this.value;

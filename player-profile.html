@@ -166,16 +166,21 @@
       outline: none;
     }
     .team-logo {
-      position: absolute;
-      top: 40px;
-      left: 40px;
-      width: 120px;
-      height: 120px;
-      object-fit: contain;
-      border-radius: 50%;
-      box-shadow: 0 2px 8px rgba(13, 71, 161, 0.12);
-      background: #fff;
-      border: 3px solid #3a86ff;
+      position: static;
+      margin: 0 0 10px 0;
+      width: 100%;
+      max-width: 120px;
+      height: auto;
+      display: block;
+    }
+    header.responsive-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      padding: 40px 0 20px 0;
+      width: 100%;
     }
     .header-title-group h1 {
       font-size: 2.3rem;
@@ -199,6 +204,9 @@
       }
     }
     @media (max-width: 700px) {
+      .team-logo {
+        max-width: 90px;
+      }
       .responsive-header {
         display: flex;
         flex-direction: column !important;
@@ -206,14 +214,6 @@
         position: relative;
         text-align: center;
         width: 100%;
-      }
-      .team-logo {
-        position: static;
-        margin: 0 0 10px 0;
-        width: 100%;
-        max-width: 120px;
-        height: auto;
-        display: block;
       }
       .dropdown-nav {
         position: static;
@@ -230,11 +230,11 @@
         text-align: center;
       }
       h1 {
-        font-size: 1.5rem;
+        font-size: 2.5rem;
         margin-bottom: 0.3rem;
       }
       .subtitle {
-        font-size: 1rem;
+        font-size: 1.2rem;
       }
     }
   </style>
@@ -253,6 +253,7 @@
           <option value="tournaments.html">Tournaments</option>
           <option value="media.html">Media</option>
           <option value="media-folder.html">Media Folder</option>
+          <option value="workout-guide.html">Workout Guide</option>
         </select>
       </div>
       <div class="header-title-group">
@@ -261,15 +262,26 @@
       </div>
     </header>
     <div class="profile-container">
-      <img id="profile-img" class="profile-img" src="img/players/default.jpg" alt="Player Photo">
-      <div class="profile-info">
-        <div class="login-logout-top" style="margin-bottom: 18px; justify-content: flex-start;">
-          <button id="loginBtn" style="display:none;">Login</button>
-          <button id="logoutBtn" style="display:none;">Logout</button>
+      <div style="display:flex;flex-direction:row;gap:40px;align-items:flex-start;width:100%;flex-wrap:wrap;">
+        <img id="profile-img" class="profile-img" src="img/players/default.jpg" alt="Player Photo">
+        <div class="profile-info" style="min-width:260px;flex:1;">
+          <h2 id="profile-name"></h2>
+          <div class="player-details-section" id="player-details-section" style="margin-bottom:1.5rem;">
+            <table style="width:100%;max-width:420px;font-size:1.08rem;">
+              <tr><td><b>Name:</b></td><td id="detail-name"></td></tr>
+              <tr><td><b>Age:</b></td><td id="detail-age"></td></tr>
+              <tr><td><b>Bowling:</b></td><td id="detail-bowling"></td></tr>
+              <tr><td><b>Batting:</b></td><td id="detail-batting"></td></tr>
+              <tr><td><b>All-time Best Score:</b></td><td id="detail-best-all"></td></tr>
+              <tr><td><b>This Year Best Score:</b></td><td id="detail-best-year"></td></tr>
+              <tr><td><b>Best Bowling Figure:</b></td><td id="detail-best-bowl"></td></tr>
+            </table>
+            <button id="editPlayerDetailsBtn" style="margin-top:10px;display:none;">Edit Details</button>
+          </div>
+          <p id="profile-details"></p>
         </div>
-        <h2 id="profile-name"></h2>
-        <p id="profile-details"></p>
-        <div class="change-password-section" id="change-password-section" style="display:none;"></div>
+      </div>
+      <div style="width:100%;margin-top:2.5rem;">
         <div class="log-section">
           <h3>Fitness & Runs Log</h3>
           <div class="log-list" id="log-list"></div>
@@ -284,15 +296,45 @@
               <span id="closeWorkoutModal" style="position:absolute;top:12px;right:18px;font-size:1.5rem;cursor:pointer;font-weight:bold;color:#3a86ff;">&times;</span>
               <h3 style="margin-top:0;color:#3a86ff;">Select Gym Workouts</h3>
               <form id="workoutForm">
-                <label><input type="checkbox" name="workout" value="Bench Press"> Bench Press</label><br>
-                <label><input type="checkbox" name="workout" value="Squats"> Squats</label><br>
-                <label><input type="checkbox" name="workout" value="Deadlift"> Deadlift</label><br>
-                <label><input type="checkbox" name="workout" value="Pull Ups"> Pull Ups</label><br>
-                <label><input type="checkbox" name="workout" value="Push Ups"> Push Ups</label><br>
-                <label><input type="checkbox" name="workout" value="Bicep Curls"> Bicep Curls</label><br>
-                <label><input type="checkbox" name="workout" value="Tricep Extensions"> Tricep Extensions</label><br>
-                <label><input type="checkbox" name="workout" value="Plank"> Plank</label><br>
-                <label><input type="checkbox" name="workout" value="Cardio"> Cardio</label><br>
+                <div style="margin-bottom:8px;">
+                  <label><input type="checkbox" name="workout" value="Bench Press" data-has-weight="1"> Bench Press</label>
+                  <input type="number" min="1" placeholder="Sets" style="width:60px;" class="input-sets" data-for="Bench Press">
+                  <input type="number" min="1" placeholder="Max kg" style="width:70px;" class="input-weight" data-for="Bench Press">
+                </div>
+                <div style="margin-bottom:8px;">
+                  <label><input type="checkbox" name="workout" value="Squats" data-has-weight="1"> Squats</label>
+                  <input type="number" min="1" placeholder="Sets" style="width:60px;" class="input-sets" data-for="Squats">
+                  <input type="number" min="1" placeholder="Max kg" style="width:70px;" class="input-weight" data-for="Squats">
+                </div>
+                <div style="margin-bottom:8px;">
+                  <label><input type="checkbox" name="workout" value="Bicep Curls" data-has-weight="1"> Bicep Curls</label>
+                  <input type="number" min="1" placeholder="Sets" style="width:60px;" class="input-sets" data-for="Bicep Curls">
+                  <input type="number" min="1" placeholder="Max kg" style="width:70px;" class="input-weight" data-for="Bicep Curls">
+                </div>
+                <div style="margin-bottom:8px;">
+                  <label><input type="checkbox" name="workout" value="Tricep Extensions" data-has-weight="1"> Tricep Extensions</label>
+                  <input type="number" min="1" placeholder="Sets" style="width:60px;" class="input-sets" data-for="Tricep Extensions">
+                  <input type="number" min="1" placeholder="Max kg" style="width:70px;" class="input-weight" data-for="Tricep Extensions">
+                </div>
+                <div style="margin-bottom:8px;">
+                  <label><input type="checkbox" name="workout" value="Pull Ups"> Pull Ups</label>
+                  <input type="number" min="1" placeholder="Sets" style="width:60px;" class="input-sets" data-for="Pull Ups">
+                </div>
+                <div style="margin-bottom:8px;">
+                  <label><input type="checkbox" name="workout" value="Push Ups"> Push Ups</label>
+                  <input type="number" min="1" placeholder="Sets" style="width:60px;" class="input-sets" data-for="Push Ups">
+                </div>
+                <div style="margin-bottom:8px;">
+                  <label><input type="checkbox" name="workout" value="Plank"> Plank</label>
+                </div>
+                <div style="margin-bottom:8px;">
+                  <label><input type="checkbox" name="workout" value="Cardio"> Cardio</label>
+                  <input type="number" min="1" placeholder="Minutes" style="width:80px;" class="input-minutes" data-for="Cardio">
+                </div>
+                <div style="margin-bottom:8px;">
+                  <label><input type="checkbox" name="workout" value="Swimming"> Swimming</label>
+                  <input type="number" min="1" placeholder="Minutes" style="width:80px;" class="input-minutes" data-for="Swimming">
+                </div>
                 <button type="submit" style="margin-top:16px;width:100%;">Apply</button>
               </form>
             </div>
@@ -311,6 +353,25 @@
       </div>
     </div>
     <a href="players.html" class="back-link">&larr; Back to Players</a>
+    <a href="workout-guide.html" class="back-link" style="margin-top:12px;">🏋️ Workout Guide</a>
+    <div class="login-logout-top" style="margin-bottom: 18px; justify-content: flex-start;">
+          <button id="loginBtn" style="display:none;background:#0d47a1;color:#fff;">Login</button>
+          <button id="logoutBtn" style="display:none;">Logout</button>
+        </div>
+  </div>
+  <div id="edit-player-details-modal" style="display:none;position:fixed;z-index:3000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
+    <div style="background:#fff;padding:32px 24px;border-radius:16px;max-width:400px;width:90vw;box-shadow:0 4px 24px rgba(0,0,0,0.15);position:relative;">
+      <span id="closeEditPlayerDetailsModal" style="position:absolute;top:12px;right:18px;font-size:1.5rem;cursor:pointer;font-weight:bold;color:#3a86ff;">&times;</span>
+      <h3 style="margin-top:0;color:#3a86ff;">Edit Player Details</h3>
+      <label>Name:<br><input type="text" id="edit-detail-name" style="width:100%;margin-bottom:10px;"></label><br>
+      <label>Age:<br><input type="text" id="edit-detail-age" style="width:100%;margin-bottom:10px;"></label><br>
+      <label>Bowling:<br><input type="text" id="edit-detail-bowling" style="width:100%;margin-bottom:10px;"></label><br>
+      <label>Batting:<br><input type="text" id="edit-detail-batting" style="width:100%;margin-bottom:10px;"></label><br>
+      <label>All-time Best Score:<br><input type="text" id="edit-detail-best-all" style="width:100%;margin-bottom:10px;"></label><br>
+      <label>This Year Best Score:<br><input type="text" id="edit-detail-best-year" style="width:100%;margin-bottom:10px;"></label><br>
+      <label>Best Bowling Figure:<br><input type="text" id="edit-detail-best-bowl" style="width:100%;margin-bottom:10px;"></label><br>
+      <button id="savePlayerDetailsBtn" style="width:100%;margin-top:10px;">Save</button>
+    </div>
   </div>
   <script>
     // --- Static player data (should match players.html) ---
@@ -573,6 +634,108 @@
       document.getElementById('photo-upload').value = '';
     };
 
+    // --- Player Details Storage ---
+    function getPlayerDetailsKey() {
+      return 'playerdetails_' + playerKey;
+    }
+    function getPlayerDetails() {
+      return JSON.parse(localStorage.getItem(getPlayerDetailsKey()) || '{}');
+    }
+    function savePlayerDetails(obj) {
+      localStorage.setItem(getPlayerDetailsKey(), JSON.stringify(obj));
+    }
+    function renderPlayerDetails() {
+      const d = getPlayerDetails();
+      document.getElementById('detail-name').textContent = d.name || player.name || '';
+      document.getElementById('detail-age').textContent = d.age || '';
+      document.getElementById('detail-bowling').textContent = d.bowling || '';
+      document.getElementById('detail-batting').textContent = d.batting || '';
+      document.getElementById('detail-best-all').textContent = d.bestAll || '';
+      document.getElementById('detail-best-year').textContent = d.bestYear || '';
+      document.getElementById('detail-best-bowl').textContent = d.bestBowl || '';
+      // Show edit button only for admin
+      if (localStorage.getItem('mokku_admin') === 'true' && localStorage.getItem('mokku_player_login') === 'madmin') {
+        document.getElementById('editPlayerDetailsBtn').style.display = '';
+      } else {
+        document.getElementById('editPlayerDetailsBtn').style.display = 'none';
+      }
+    }
+    renderPlayerDetails();
+    // --- Edit Player Details Modal Logic ---
+    document.getElementById('editPlayerDetailsBtn').onclick = function() {
+      const d = getPlayerDetails();
+      document.getElementById('edit-detail-name').value = d.name || player.name || '';
+      document.getElementById('edit-detail-age').value = d.age || '';
+      document.getElementById('edit-detail-bowling').value = d.bowling || '';
+      document.getElementById('edit-detail-batting').value = d.batting || '';
+      document.getElementById('edit-detail-best-all').value = d.bestAll || '';
+      document.getElementById('edit-detail-best-year').value = d.bestYear || '';
+      document.getElementById('edit-detail-best-bowl').value = d.bestBowl || '';
+      document.getElementById('edit-player-details-modal').style.display = 'flex';
+    };
+    document.getElementById('closeEditPlayerDetailsModal').onclick = function() {
+      document.getElementById('edit-player-details-modal').style.display = 'none';
+    };
+    document.getElementById('savePlayerDetailsBtn').onclick = function() {
+      const d = {
+        name: document.getElementById('edit-detail-name').value.trim(),
+        age: document.getElementById('edit-detail-age').value.trim(),
+        bowling: document.getElementById('edit-detail-bowling').value.trim(),
+        batting: document.getElementById('edit-detail-batting').value.trim(),
+        bestAll: document.getElementById('edit-detail-best-all').value.trim(),
+        bestYear: document.getElementById('edit-detail-best-year').value.trim(),
+        bestBowl: document.getElementById('edit-detail-best-bowl').value.trim()
+      };
+      savePlayerDetails(d);
+      document.getElementById('edit-player-details-modal').style.display = 'none';
+      renderPlayerDetails();
+    };
+
+    // --- Workout Modal Logic ---
+    const workoutModal = document.getElementById('workoutModal');
+    const selectWorkoutBtn = document.getElementById('selectWorkoutBtn');
+    const closeWorkoutModal = document.getElementById('closeWorkoutModal');
+    const workoutForm = document.getElementById('workoutForm');
+    selectWorkoutBtn.onclick = function(e) {
+      e.preventDefault();
+      workoutModal.style.display = 'flex';
+    };
+    closeWorkoutModal.onclick = function() {
+      workoutModal.style.display = 'none';
+    };
+    workoutForm.onsubmit = function(e) {
+      e.preventDefault();
+      const checked = Array.from(workoutForm.elements['workout'])
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+      if (!checked.length) {
+        workoutModal.style.display = 'none';
+        return;
+      }
+      let details = [];
+      checked.forEach(val => {
+        let str = val;
+        // Add sets/weight/minutes if present
+        const sets = workoutForm.querySelector(`.input-sets[data-for="${val}"]`);
+        const weight = workoutForm.querySelector(`.input-weight[data-for="${val}"]`);
+        const mins = workoutForm.querySelector(`.input-minutes[data-for="${val}"]`);
+        if (sets && sets.value) str += ` (${sets.value} sets)`;
+        if (weight && weight.value) str += `, Max: ${weight.value}kg`;
+        if (mins && mins.value) str += ` (${mins.value} min)`;
+        details.push(str);
+      });
+      if (details.length) {
+        const logs = getLogs();
+        logs.unshift('Workout: ' + details.join(', ') + ' (' + new Date().toLocaleString() + ')');
+        saveLogs(logs);
+        renderLogs();
+      }
+      workoutModal.style.display = 'none';
+      // Uncheck all and clear inputs after submit
+      Array.from(workoutForm.elements['workout']).forEach(cb => cb.checked = false);
+      workoutForm.querySelectorAll('input[type=number]').forEach(inp => inp.value = '');
+    };
+
     // --- Login/Logout button logic ---
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -582,12 +745,14 @@
         logoutBtn.style.display = '';
       } else {
         loginBtn.style.display = '';
+        loginBtn.style.background = '#0d47a1';
+        loginBtn.style.color = '#fff';
         logoutBtn.style.display = 'none';
       }
     }
     loginBtn.onclick = function() {
       // Go to login page
-      window.location.href = 'login.html';
+      window.location.href = 'login.html?player=' + playerKey;
     };
     logoutBtn.onclick = function() {
       logoutPlayer();
@@ -620,34 +785,6 @@
     document.getElementById('pageDropdown').addEventListener('change', function() {
       window.location.href = this.value;
     });
-
-    // --- Workout Modal Logic ---
-    const workoutModal = document.getElementById('workoutModal');
-    const selectWorkoutBtn = document.getElementById('selectWorkoutBtn');
-    const closeWorkoutModal = document.getElementById('closeWorkoutModal');
-    const workoutForm = document.getElementById('workoutForm');
-    selectWorkoutBtn.onclick = function(e) {
-      e.preventDefault();
-      workoutModal.style.display = 'flex';
-    };
-    closeWorkoutModal.onclick = function() {
-      workoutModal.style.display = 'none';
-    };
-    workoutForm.onsubmit = function(e) {
-      e.preventDefault();
-      const checked = Array.from(workoutForm.elements['workout'])
-        .filter(cb => cb.checked)
-        .map(cb => cb.value);
-      if (checked.length) {
-        const logs = getLogs();
-        logs.unshift('Workout: ' + checked.join(', ') + ' (' + new Date().toLocaleString() + ')');
-        saveLogs(logs);
-        renderLogs();
-      }
-      workoutModal.style.display = 'none';
-      // Uncheck all after submit
-      Array.from(workoutForm.elements['workout']).forEach(cb => cb.checked = false);
-    };
   </script>
 </body>
 </html>

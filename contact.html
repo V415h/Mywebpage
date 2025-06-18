@@ -100,6 +100,25 @@
       color: #555;
       margin-top: 0.5rem;
     }
+    #playerLoginBtnSection {
+      max-width: 350px;
+      margin: 0 auto 18px auto;
+      text-align: center;
+    }
+    #playerLoginBtn {
+      width: 160px;
+      background: #0d47a1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #playerLoginBtn:hover {
+      background: #166534;
+    }
     @media (max-width: 768px) {
       .header-title-group {
         margin-top: 120px;
@@ -112,12 +131,13 @@
       }
     }
     @media (max-width: 700px) {
-      .responsive-header {
+      header.responsive-header {
         display: flex;
-        flex-direction: column !important;
+        flex-direction: column;
         align-items: center;
-        position: relative;
         text-align: center;
+        position: relative;
+        padding: 40px 0 20px 0;
         width: 100%;
       }
       .team-logo {
@@ -143,11 +163,11 @@
         text-align: center;
       }
       h1 {
-        font-size: 1.5rem;
+        font-size: 2.5rem;
         margin-bottom: 0.3rem;
       }
       .subtitle {
-        font-size: 1rem;
+        font-size: 1.2rem;
       }
     }
   </style>
@@ -165,7 +185,7 @@
           <option value="contact.html" selected>Contact</option>
           <option value="tournaments.html">Tournaments</option>
           <option value="media.html">Media</option>
-          <option value="media-folder.html">Media Folder</option>
+          <option value="workout-guide.html">Workout Guide</option>
         </select>
       </div>
       <div class="header-title-group">
@@ -173,6 +193,9 @@
         <p class="subtitle">Sri Lankan community cricket team in Holland since 2010</p>
       </div>
     </header>
+    <div id="playerLoginBtnSection">
+      <button id="playerLoginBtn">Login</button>
+    </div>
     <section class="contact-section">
       <form>
         <label for="name">Name</label>
@@ -189,6 +212,26 @@
     document.getElementById('pageDropdown').addEventListener('change', function() {
       window.location.href = this.value;
     });
+    function updatePlayerLoginBtn() {
+      const user = localStorage.getItem('mokku_player_login');
+      const btnSection = document.getElementById('playerLoginBtnSection');
+      if (!btnSection) return;
+      if (!user) {
+        btnSection.innerHTML = `<button id='playerLoginBtn' style='width:160px;background:#0d47a1;color:#fff;'>Login</button>`;
+        document.getElementById('playerLoginBtn').onclick = function() {
+          localStorage.setItem('mokku_login_redirect', window.location.pathname);
+          window.location.href = 'login.html';
+        };
+      } else {
+        btnSection.innerHTML = `<span style='margin-right:12px;'>Welcome, <b>${user.charAt(0).toUpperCase() + user.slice(1)}</b></span><button id='playerLogoutBtn' style='width:100px;'>Logout</button>`;
+        document.getElementById('playerLogoutBtn').onclick = function() {
+          localStorage.removeItem('mokku_player_login');
+          localStorage.removeItem('mokku_admin');
+          updatePlayerLoginBtn();
+        };
+      }
+    }
+    updatePlayerLoginBtn();
   </script>
 </body>
 </html>

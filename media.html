@@ -82,6 +82,7 @@
       box-shadow: 0 1px 6px rgba(22, 101, 52, 0.08);
       padding: 12px;
       text-align: center;
+      position: relative;
     }
     .media-item img {
       max-width: 100%;
@@ -143,12 +144,13 @@
       }
     }
     @media (max-width: 700px) {
-      .responsive-header {
+      header.responsive-header {
         display: flex;
-        flex-direction: column !important;
+        flex-direction: column;
         align-items: center;
-        position: relative;
         text-align: center;
+        position: relative;
+        padding: 40px 0 20px 0;
         width: 100%;
       }
       .team-logo {
@@ -174,11 +176,11 @@
         text-align: center;
       }
       h1 {
-        font-size: 1.5rem;
+        font-size: 2.5rem;
         margin-bottom: 0.3rem;
       }
       .subtitle {
-        font-size: 1rem;
+        font-size: 1.2rem;
       }
     }
   </style>
@@ -196,7 +198,7 @@
           <option value="contact.html">Contact</option>
           <option value="tournaments.html">Tournaments</option>
           <option value="media.html" selected>Media</option>
-          <option value="media-folder.html">Media Folder</option>
+          <option value="workout-guide.html">Workout Guide</option>
         </select>
       </div>
       <div class="header-title-group">
@@ -204,19 +206,137 @@
         <p class="subtitle">Sri Lankan community cricket team in Holland since 2010</p>
       </div>
     </header>
+    <div id="playerLoginBtnSection" style="max-width:350px;margin:0 auto 18px auto;text-align:center;">
+      <button id="playerLoginBtn" style="width:160px;background:#0d47a1;color:#fff;">Login</button>
+    </div>
     <section class="media-section">
-      <div class="media-grid" id="media-grid">
-        <div class="media-item" onclick="window.location.href='media-folder.html?folder=General'" style="cursor:pointer;">
-          <img src="Dta/General/team-logo.png" alt="General Folder Logo" style="max-width:100px;max-height:100px;display:block;margin:0 auto 8px auto;" />
-          <div class="media-filename">General</div>
+      <button id="addFolderBtn" style="margin-bottom:18px;display:none;">Add New Folder</button>
+      <div class="media-grid" id="media-grid"></div>
+      <!-- Add Folder Modal -->
+      <div id="addFolderModal" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
+        <div style="background:#fff;padding:32px 24px;border-radius:16px;max-width:350px;width:90vw;box-shadow:0 4px 24px rgba(0,0,0,0.15);position:relative;">
+          <span id="closeAddFolderModal" style="position:absolute;top:12px;right:18px;font-size:1.5rem;cursor:pointer;font-weight:bold;color:#3a86ff;">&times;</span>
+          <h3 style="margin-top:0;color:#3a86ff;">Add Folder</h3>
+          <input type="text" id="folder-name" placeholder="Folder Name" style="width:100%;margin-bottom:10px;">
+          <button id="addFolderSubmit" style="width:100%;">Add</button>
         </div>
       </div>
     </section>
   </div>
   <script>
-    document.getElementById('pageDropdown').addEventListener('change', function() {
-      window.location.href = this.value;
-    });
+    // --- Admin Auth ---
+    function isAdmin() {
+      return localStorage.getItem('mokku_admin') === 'true' && localStorage.getItem('mokku_player_login') === 'madmin';
+    }
+    // --- Login/Logout Button Logic (reuse from tournaments) ---
+    function updatePlayerLoginBtn() {
+      const user = localStorage.getItem('mokku_player_login');
+      const btnSection = document.getElementById('playerLoginBtnSection');
+      if (!btnSection) return;
+      if (!user) {
+        btnSection.innerHTML = `<button id='playerLoginBtn' style='width:160px;background:#0d47a1;color:#fff;'>Login</button>`;
+        document.getElementById('playerLoginBtn').onclick = function() {
+          localStorage.setItem('mokku_login_redirect', window.location.pathname);
+          window.location.href = 'login.html';
+        };
+      } else {
+        btnSection.innerHTML = `<span style='margin-right:12px;'>Welcome, <b>${user.charAt(0).toUpperCase() + user.slice(1)}</b></span><button id='playerLogoutBtn' style='width:100px;'>Logout</button>`;
+        document.getElementById('playerLogoutBtn').onclick = function() {
+          localStorage.removeItem('mokku_player_login');
+          localStorage.removeItem('mokku_admin');
+          updatePlayerLoginBtn();
+          renderFolders && renderFolders();
+        };
+      }
+    }
+    updatePlayerLoginBtn();
+    // --- Folder Storage ---
+    function getFolders() {
+      // Remove 'General' from default and from display
+      const folders = JSON.parse(localStorage.getItem('mokku_folders')||'[]');
+      return folders.filter(f => f !== 'General');
+    }
+    function saveFolders(list) {
+      // Prevent saving 'General' folder
+      const filtered = list.filter(f => f !== 'General');
+      localStorage.setItem('mokku_folders',JSON.stringify(filtered));
+    }
+    function getFolderLogo(folder) {
+      // Try to get the first uploaded image for the folder
+      const imgs = JSON.parse(localStorage.getItem('mokku_media_' + folder) || '[]');
+      if (imgs.length > 0) return imgs[0].data;
+      // Fallback: placeholder logo
+      return 'Dta/General/team-logo.png';
+    }
+    function renderFolders() {
+      const folders = getFolders();
+      const grid = document.getElementById('media-grid');
+      const admin = isAdmin();
+      grid.innerHTML = folders.map(folder => {
+        let delBtn = '';
+        if (admin) {
+          delBtn = `<button class='delete-folder-btn' data-folder="${encodeURIComponent(folder)}" title='Delete Folder' style='background:#e53935;color:#fff;border:none;border-radius:5px;padding:4px 10px;margin-left:8px;cursor:pointer;font-size:1.1rem;'>🗑️</button>`;
+        }
+        const logoSrc = getFolderLogo(folder);
+        return `<div class="media-item" style="cursor:pointer;position:relative;">
+          <div onclick="window.location.href='media-folder.html?folder=${encodeURIComponent(folder)}'">
+            <img src="${logoSrc}" alt="${folder} Folder Logo" style="max-width:100px;max-height:100px;display:block;margin:0 auto 8px auto;" />
+            <div class="media-filename">${folder}</div>
+          </div>
+          ${delBtn}
+        </div>`;
+      }).join('');
+      // Attach delete handlers
+      if (admin) {
+        document.querySelectorAll('.delete-folder-btn').forEach(btn => {
+          btn.onclick = function(e) {
+            e.stopPropagation();
+            const folder = decodeURIComponent(this.getAttribute('data-folder'));
+            if (!confirm(`Delete folder '${folder}' and all its images? This cannot be undone!`)) return;
+            let folders = getFolders().filter(f => f !== folder);
+            saveFolders(folders);
+            // Remove images for this folder
+            localStorage.removeItem('mokku_media_' + folder);
+            renderFolders();
+          };
+        });
+      }
+    }
+    renderFolders();
+    // --- Admin UI ---
+    function updateAdminUI() {
+      if(isAdmin()) {
+        document.getElementById('addFolderBtn').style.display = 'block';
+      } else {
+        document.getElementById('addFolderBtn').style.display = 'none';
+      }
+    }
+    updateAdminUI();
+    // --- Add Folder Modal Logic ---
+    const addFolderBtn = document.getElementById('addFolderBtn');
+    const addFolderModal = document.getElementById('addFolderModal');
+    const closeAddFolderModal = document.getElementById('closeAddFolderModal');
+    const addFolderSubmit = document.getElementById('addFolderSubmit');
+    addFolderBtn.onclick = function() { addFolderModal.style.display = 'flex'; };
+    closeAddFolderModal.onclick = function() { addFolderModal.style.display = 'none'; };
+    addFolderSubmit.onclick = function() {
+      const name = document.getElementById('folder-name').value.trim();
+      if(!name) return alert('Folder name required');
+      const folders = getFolders();
+      if(folders.includes(name)) return alert('Folder already exists');
+      folders.push(name);
+      saveFolders(folders);
+      addFolderModal.style.display = 'none';
+      renderFolders();
+    };
+    // --- Dropdown Navigation ---
+    var dropdown = document.getElementById('pageDropdown');
+    if(dropdown && !dropdown.hasAttribute('data-listener')) {
+      dropdown.addEventListener('change', function() {
+        window.location.assign(this.value);
+      });
+      dropdown.setAttribute('data-listener', 'true');
+    }
   </script>
 </body>
 </html>

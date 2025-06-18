@@ -132,10 +132,11 @@
     @media (max-width: 700px) {
       .responsive-header {
         display: flex;
-        flex-direction: column !important;
+        flex-direction: column;
         align-items: center;
-        position: relative;
         text-align: center;
+        position: relative;
+        padding: 40px 0 20px 0;
         width: 100%;
       }
       .team-logo {
@@ -161,12 +162,22 @@
         text-align: center;
       }
       h1 {
-        font-size: 1.5rem;
+        font-size: 2.5rem;
         margin-bottom: 0.3rem;
       }
       .subtitle {
-        font-size: 1rem;
+        font-size: 1.2rem;
       }
+    }
+    #playerLoginBtnSection {
+      max-width: 350px;
+      margin: 0 auto 18px auto;
+      text-align: center;
+    }
+    #playerLoginBtn {
+      width: 160px;
+      background: #0d47a1;
+      color: #fff;
     }
   </style>
 </head>
@@ -178,12 +189,12 @@
       </a>
       <div class="dropdown-nav">
         <select id="pageDropdown">
-          <option value="index.html" selected>Home</option>
+          <option value="index.html">Home</option>
           <option value="players.html">Players</option>
           <option value="contact.html">Contact</option>
           <option value="tournaments.html">Tournaments</option>
           <option value="media.html">Media</option>
-          <option value="media-folder.html">Media Folder</option>
+          <option value="workout-guide.html">Workout Guide</option>
         </select>
       </div>
       <div class="header-title-group">
@@ -191,6 +202,9 @@
         <p class="subtitle">Sri Lankan community cricket team in Holland since 2010</p>
       </div>
     </header>
+    <div id="playerLoginBtnSection">
+      <button id="playerLoginBtn">Login</button>
+    </div>
     <section class="grid">
       <div class="card">
         <h2>About Us</h2>
@@ -203,15 +217,15 @@
       </div>
       <div class="card" id="tournaments-card" style="cursor:pointer;" onclick="window.location.href='tournaments.html'">
         <h2>Next Tournaments</h2>
-        <div id="tournaments-list">
-          <div style='margin-bottom:1rem;cursor:pointer;' onclick="window.location.href='tournaments.html'">
-            <strong>Dynamite SportsClup</strong><br>Date: 21-6-2025<br>Start: 09:30<br>Location: Aanloop 3, 1183SZ , Amstelveen<br>Max Players: 7
-          </div>
-          <div style='cursor:pointer;' onclick="window.location.href='tournaments.html'">
-            <strong>Ellalan softball</strong><br>Date: 5-7-2025<br>Start: 09:00<br>Location: De verbinding, sportlaan 4, 8044 PG, Zwolle<br>Max Players: 7
-          </div>
-        </div>
+        <div id="tournaments-list"></div>
         <div style="margin-top:1rem;color:#0d47a1;font-weight:bold;">Click for more tournaments</div>
+      </div>
+      <div class="card" id="events-card" style="cursor:pointer;" onclick="window.location.href='events.html'">
+        <h2>Next Event</h2>
+        <div id="events-list">
+          <!-- Will be filled by JS -->
+        </div>
+        <div style="margin-top:1rem;color:#0d47a1;font-weight:bold;">Click for more events</div>
       </div>
     </section>
     <section class="join-section">
@@ -221,9 +235,89 @@
     </section>
   </div>
   <script>
-    document.getElementById('pageDropdown').addEventListener('change', function() {
-      window.location.href = this.value;
-    });
+    // --- Show next tournaments from localStorage ---
+    function getTournaments() {
+      return JSON.parse(localStorage.getItem('mokku_tournaments')||'[]');
+    }
+    function formatDate(d) {
+      // Accepts yyyy-mm-dd, returns dd-mm-yyyy
+      if(!d) return '';
+      const [y,m,day] = d.split('-');
+      return `${day}-${m}-${y}`;
+    }
+    function renderNextTournaments() {
+      const list = getTournaments();
+      const today = new Date();
+      // Only future or today
+      const upcoming = list.filter(t => {
+        if(!t.date) return false;
+        const dt = new Date(t.date);
+        return dt >= new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      });
+      // Sort by date ascending (soonest first)
+      upcoming.sort((a,b) => new Date(a.date) - new Date(b.date));
+      const show = upcoming.slice(0,2); // Only show 2
+      const html = show.length ? show.map(t =>
+        `<div style='margin-bottom:1rem;cursor:pointer;' onclick="window.location.href='tournaments.html'">
+          <strong>${t.name}</strong><br>Date: ${formatDate(t.date)}<br>Start: ${t.time}<br>Location: ${t.location || '<em>Not set</em>'}<br>Max Players: ${t.maxPlayers}
+        </div>`
+      ).join('') : '<em>No upcoming tournaments.</em>';
+      document.getElementById('tournaments-list').innerHTML = html;
+    }
+    renderNextTournaments();
+    // --- Show next events from localStorage ---
+    function getEvents() {
+      return JSON.parse(localStorage.getItem('mokku_events')||'[]');
+    }
+    function renderNextEvents() {
+      const list = getEvents();
+      const today = new Date();
+      // Only future or today
+      const upcoming = list.filter(e => {
+        if(!e.date) return false;
+        const dt = new Date(e.date);
+        return dt >= new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      });
+      // Sort by date ascending (soonest first)
+      upcoming.sort((a,b) => new Date(a.date) - new Date(b.date));
+      const show = upcoming.slice(0,2); // Only show 2
+      const html = show.length ? show.map(e =>
+        `<div style='margin-bottom:1rem;cursor:pointer;' onclick="window.location.href='events.html'">
+          <strong>${e.name}</strong><br>Date: ${formatDate(e.date)}<br>Start: ${e.time}<br>Location: ${e.location || '<em>Not set</em>'}<br>Max Guests: ${e.maxGuests}
+        </div>`
+      ).join('') : '<em>No upcoming events.</em>';
+      document.getElementById('events-list').innerHTML = html;
+    }
+    renderNextEvents();
+    // --- Login/Logout Button Logic (reuse from tournaments) ---
+    function updatePlayerLoginBtn() {
+      const user = localStorage.getItem('mokku_player_login');
+      const btnSection = document.getElementById('playerLoginBtnSection');
+      if (!btnSection) return;
+      if (!user) {
+        btnSection.innerHTML = `<button id='playerLoginBtn' style='width:160px;background:#0d47a1;color:#fff;'>Login</button>`;
+        document.getElementById('playerLoginBtn').onclick = function() {
+          localStorage.setItem('mokku_login_redirect', window.location.pathname);
+          window.location.href = 'login.html';
+        };
+      } else {
+        btnSection.innerHTML = `<span style='margin-right:12px;'>Welcome, <b>${user.charAt(0).toUpperCase() + user.slice(1)}</b></span><button id='playerLogoutBtn' style='width:100px;'>Logout</button>`;
+        document.getElementById('playerLogoutBtn').onclick = function() {
+          localStorage.removeItem('mokku_player_login');
+          localStorage.removeItem('mokku_admin');
+          updatePlayerLoginBtn();
+        };
+      }
+    }
+    updatePlayerLoginBtn();
+    // Always attach dropdown event listener after render
+    var dropdown = document.getElementById('pageDropdown');
+    if(dropdown && !dropdown.hasAttribute('data-listener')) {
+      dropdown.addEventListener('change', function() {
+        window.location.href = this.value;
+      });
+      dropdown.setAttribute('data-listener', 'true');
+    }
   </script>
 </body>
 </html>
