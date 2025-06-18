@@ -185,84 +185,29 @@
     const SUPABASE_URL = 'https://nrmauuyyzpkdpkbueuec.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ybWF1dXl5enBrZHBrYnVldWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNDgxMjUsImV4cCI6MjA2NTgyNDEyNX0.YuFbzTrc-lUggd4V-5u3sHL5tS4TmooxLpPucLCc4Mo';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  </script>
-</head>
-<body>
-  <div class="container">
-    <header class="responsive-header">
-      <a href="index.html">
-        <img src="team-logo.png" alt="Team Logo" class="team-logo" />
-      </a>
-      <div class="dropdown-nav">
-        <select id="pageDropdown">
-          <option value="index.html">Home</option>
-          <option value="players.html">Players</option>
-          <option value="contact.html">Contact</option>
-          <option value="tournaments.html">Tournaments</option>
-          <option value="media.html">Media</option>
-          <option value="workout-guide.html">Workout Guide</option>
-        </select>
-      </div>
-      <div class="header-title-group">
-        <h1>Mokku Squad Cricket Team</h1>
-        <p class="subtitle">Sri Lankan community cricket team in Holland since 2010</p>
-      </div>
-    </header>
-    <div id="playerLoginBtnSection">
-      <button id="playerLoginBtn">Login</button>
-    </div>
-    <section class="grid">
-      <div class="card">
-        <h2>About Us</h2>
-        <p>
-          Mokku Squad is a fun, passionate cricket team based in Zeist and Hilversum. Formed in 2010, we are part of the Sri Lankan community in the Netherlands, playing the sport we love and building friendships.
-        </p>
-        <p style="margin-top: 0.5rem;">
-          We’re not just about cricket—we work together on green projects every summer to keep the Earth clean and spread environmental awareness.
-        </p>
-      </div>
-      <div class="card" id="tournaments-card" style="cursor:pointer;" onclick="window.location.href='tournaments.html'">
-        <h2>Next Tournaments</h2>
-        <div id="tournaments-list"></div>
-        <div style="margin-top:1rem;color:#0d47a1;font-weight:bold;">Click for more tournaments</div>
-      </div>
-      <div class="card" id="events-card" style="cursor:pointer;" onclick="window.location.href='events.html'">
-        <h2>Next Event</h2>
-        <div id="events-list">
-          <!-- Will be filled by JS -->
-        </div>
-        <div style="margin-top:1rem;color:#0d47a1;font-weight:bold;">Click for more events</div>
-      </div>
-    </section>
-    <section class="join-section">
-      <h2>Join or Support Us</h2>
-      <p>If you want to play with us or support our green mission, feel free to get in touch!</p>
-      <button class="contact-btn" onclick="window.location.href='contact.html'; return false;">Contact Us</button>
-    </section>
-  </div>
-  <script>
-    // --- Show next tournaments from localStorage ---
-    function getTournaments() {
-      return JSON.parse(localStorage.getItem('mokku_tournaments')||'[]');
+    // --- Show next tournaments from Supabase ---
+    async function fetchTournaments() {
+      let { data, error } = await supabase
+        .from('tournaments')
+        .select('*');
+      if (error) return [];
+      return data || [];
     }
     function formatDate(d) {
-      // Accepts yyyy-mm-dd, returns dd-mm-yyyy
       if(!d) return '';
       const [y,m,day] = d.split('-');
       return `${day}-${m}-${y}`;
     }
-    function renderNextTournaments() {
-      const list = getTournaments();
+    async function renderNextTournaments() {
+      const list = await fetchTournaments();
       const today = new Date();
-      // Only future or today
       const upcoming = list.filter(t => {
         if(!t.date) return false;
         const dt = new Date(t.date);
         return dt >= new Date(today.getFullYear(), today.getMonth(), today.getDate());
       });
-      // Sort by date ascending (soonest first)
       upcoming.sort((a,b) => new Date(a.date) - new Date(b.date));
-      const show = upcoming.slice(0,2); // Only show 2
+      const show = upcoming.slice(0,2);
       const html = show.length ? show.map(t =>
         `<div style='margin-bottom:1rem;cursor:pointer;' onclick="window.location.href='tournaments.html'">
           <strong>${t.name}</strong><br>Date: ${formatDate(t.date)}<br>Start: ${t.time}<br>Location: ${t.location || '<em>Not set</em>'}<br>Max Players: ${t.maxPlayers}
@@ -271,22 +216,24 @@
       document.getElementById('tournaments-list').innerHTML = html;
     }
     renderNextTournaments();
-    // --- Show next events from localStorage ---
-    function getEvents() {
-      return JSON.parse(localStorage.getItem('mokku_events')||'[]');
+    // --- Show next events from Supabase ---
+    async function fetchEvents() {
+      let { data, error } = await supabase
+        .from('events')
+        .select('*');
+      if (error) return [];
+      return data || [];
     }
-    function renderNextEvents() {
-      const list = getEvents();
+    async function renderNextEvents() {
+      const list = await fetchEvents();
       const today = new Date();
-      // Only future or today
       const upcoming = list.filter(e => {
         if(!e.date) return false;
         const dt = new Date(e.date);
         return dt >= new Date(today.getFullYear(), today.getMonth(), today.getDate());
       });
-      // Sort by date ascending (soonest first)
       upcoming.sort((a,b) => new Date(a.date) - new Date(b.date));
-      const show = upcoming.slice(0,2); // Only show 2
+      const show = upcoming.slice(0,2);
       const html = show.length ? show.map(e =>
         `<div style='margin-bottom:1rem;cursor:pointer;' onclick="window.location.href='events.html'">
           <strong>${e.name}</strong><br>Date: ${formatDate(e.date)}<br>Start: ${e.time}<br>Location: ${e.location || '<em>Not set</em>'}<br>Max Guests: ${e.maxGuests}

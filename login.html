@@ -107,6 +107,66 @@
     const SUPABASE_URL = 'https://nrmauuyyzpkdpkbueuec.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ybWF1dXl5enBrZHBrYnVldWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNDgxMjUsImV4cCI6MjA2NTgyNDEyNX0.YuFbzTrc-lUggd4V-5u3sHL5tS4TmooxLpPucLCc4Mo';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // --- Supabase Table Name ---
+    const PLAYER_PASSWORDS_TABLE = 'player_passwords';
+    // --- Static player data (should match players.html) ---
+    const playerData = {
+      santhuru: {}, vithuran: {}, jenagan: {}, arun: {}, rion: {}, logesan: {}, mayuran: {}, don: {}, kanesh: {}, pradeep: {}, rasa: {}, sudarshan: {}, gobi: {}, vaishnavan: {}
+    };
+    function getPasswordKey(playerKey) {
+      return 'playerpass_' + playerKey;
+    }
+    function getDefaultPassword() {
+      return 'mokkuteam';
+    }
+    async function getPlayerPassword(playerKey) {
+      let { data, error } = await supabase
+        .from(PLAYER_PASSWORDS_TABLE)
+        .select('password')
+        .eq('player', playerKey)
+        .single();
+      if (error || !data) return getDefaultPassword();
+      return data.password;
+    }
+    async function loginPlayer() {
+      const username = document.getElementById('login-username').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value;
+      // Allow admin login
+      if(username === 'madmin' && password === 'Mokkuadmin') {
+        localStorage.setItem('mokku_admin', 'true');
+        localStorage.setItem('mokku_player_login', 'madmin');
+        const redirect = localStorage.getItem('mokku_login_redirect');
+        if(redirect) {
+          localStorage.removeItem('mokku_login_redirect');
+          window.location.href = redirect;
+        } else {
+          window.location.href = 'tournaments.html';
+        }
+        return;
+      }
+      if (!playerData.hasOwnProperty(username)) {
+        document.getElementById('login-error').textContent = 'Incorrect username.';
+        return;
+      }
+      const savedPass = await getPlayerPassword(username);
+      if (password !== savedPass) {
+        document.getElementById('login-error').textContent = 'Incorrect password.';
+        return;
+      }
+      localStorage.setItem('loggedin_' + username, 'true');
+      localStorage.setItem('mokku_player_login', username); // Set player login for all pages
+      // Redirect to previous page if set
+      const redirect = localStorage.getItem('mokku_login_redirect');
+      if(redirect) {
+        localStorage.removeItem('mokku_login_redirect');
+        window.location.href = redirect;
+      } else {
+        window.location.href = `player-profile.html?player=${username}`;
+      }
+    }
+    document.getElementById('pageDropdown').addEventListener('change', function() {
+      window.location.href = this.value;
+    });
   </script>
 </head>
 <body>
@@ -138,56 +198,5 @@
       <div id="login-error" class="login-error"></div>
     </div>
   </div>
-  <script>
-    // --- Static player data (should match players.html) ---
-    const playerData = {
-      santhuru: {}, vithuran: {}, jenagan: {}, arun: {}, rion: {}, logesan: {}, mayuran: {}, don: {}, kanesh: {}, pradeep: {}, rasa: {}, sudarshan: {}, gobi: {}, vaishnavan: {}
-    };
-    function getPasswordKey(playerKey) {
-      return 'playerpass_' + playerKey;
-    }
-    function getDefaultPassword() {
-      return 'mokkuteam';
-    }
-    function loginPlayer() {
-      const username = document.getElementById('login-username').value.trim().toLowerCase();
-      const password = document.getElementById('login-password').value;
-      // Allow admin login
-      if(username === 'madmin' && password === 'Mokkuadmin') {
-        localStorage.setItem('mokku_admin', 'true');
-        localStorage.setItem('mokku_player_login', 'madmin');
-        const redirect = localStorage.getItem('mokku_login_redirect');
-        if(redirect) {
-          localStorage.removeItem('mokku_login_redirect');
-          window.location.href = redirect;
-        } else {
-          window.location.href = 'tournaments.html';
-        }
-        return;
-      }
-      if (!playerData.hasOwnProperty(username)) {
-        document.getElementById('login-error').textContent = 'Incorrect username.';
-        return;
-      }
-      const savedPass = localStorage.getItem(getPasswordKey(username)) || getDefaultPassword();
-      if (password !== savedPass) {
-        document.getElementById('login-error').textContent = 'Incorrect password.';
-        return;
-      }
-      localStorage.setItem('loggedin_' + username, 'true');
-      localStorage.setItem('mokku_player_login', username); // Set player login for all pages
-      // Redirect to previous page if set
-      const redirect = localStorage.getItem('mokku_login_redirect');
-      if(redirect) {
-        localStorage.removeItem('mokku_login_redirect');
-        window.location.href = redirect;
-      } else {
-        window.location.href = `player-profile.html?player=${username}`;
-      }
-    }
-    document.getElementById('pageDropdown').addEventListener('change', function() {
-      window.location.href = this.value;
-    });
-  </script>
 </body>
 </html>

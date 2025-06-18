@@ -130,7 +130,11 @@
       <button style="margin-top:24px;" onclick="goBack()">&larr; Back to Profile</button>
     </div>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
+    const SUPABASE_URL = 'https://nrmauuyyzpkdpkbueuec.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ybWF1dXl5enBrZHBrYnVldWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNDgxMjUsImV4cCI6MjA2NTgyNDEyNX0.YuFbzTrc-lUggd4V-5u3sHL5tS4TmooxLpPucLCc4Mo';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     // Get player from URL (?player=arun)
     function getPlayerKey() {
       const params = new URLSearchParams(window.location.search);
@@ -146,16 +150,30 @@
     function isLoggedIn() {
       return localStorage.getItem('loggedin_' + playerKey) === 'true';
     }
-    function changePassword() {
+    async function getPlayerPassword(playerKey) {
+      let { data, error } = await supabase
+        .from('player_passwords')
+        .select('password')
+        .eq('player', playerKey)
+        .single();
+      if (error || !data) return getDefaultPassword();
+      return data.password;
+    }
+    async function setPlayerPassword(playerKey, newPass) {
+      // Upsert password
+      let { error } = await supabase.from('player_passwords').upsert([{ player: playerKey, password: newPass }], { onConflict: ['player'] });
+      if (error) throw error;
+    }
+    async function changePassword() {
       const oldPass = document.getElementById('old-password').value;
       const newPass = document.getElementById('new-password').value;
-      const savedPass = localStorage.getItem(getPasswordKey()) || getDefaultPassword();
       document.getElementById('change-password-error').textContent = '';
       document.getElementById('change-password-success').textContent = '';
       if (!isLoggedIn()) {
         document.getElementById('change-password-error').textContent = 'You must be logged in.';
         return;
       }
+      const savedPass = await getPlayerPassword(playerKey);
       if (oldPass !== savedPass) {
         document.getElementById('change-password-error').textContent = 'Old password incorrect.';
         return;
@@ -164,8 +182,12 @@
         document.getElementById('change-password-error').textContent = 'New password cannot be empty.';
         return;
       }
-      localStorage.setItem(getPasswordKey(), newPass);
-      document.getElementById('change-password-success').textContent = 'Password changed!';
+      try {
+        await setPlayerPassword(playerKey, newPass);
+        document.getElementById('change-password-success').textContent = 'Password changed!';
+      } catch (e) {
+        document.getElementById('change-password-error').textContent = 'Error saving password.';
+      }
     }
     function goBack() {
       window.location.href = `player-profile.html?player=${playerKey}`;

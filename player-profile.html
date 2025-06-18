@@ -380,227 +380,145 @@
     </div>
   </div>
   <script>
-    // --- Static player data (should match players.html) ---
-    const playerData = {
-      santhuru: {
-        name: "Santhuru Sivamoorthy (Captain)",
-        img: "santhuru.jpg",
-        details: "Captain and allrounder. Leading the team with passion and skill."
-      },
-      vithuran: {
-        name: "Vithuran",
-        img: "vithuran.jpg",
-        details: "Key batsman and reliable fielder."
-      },
-      jenagan: {
-        name: "Jenagan",
-        img: "Jenagan.jpg",
-        details: "Fast bowler and energetic team player."
-      },
-      arun: {
-        name: "Arun",
-        img: "arun.jpg",
-        details: "New team member. Details coming soon."
-      },
-      rion: {
-        name: "Rion Ockers (WK)",
-        img: "rion.jpg",
-        details: "Consistent performer and motivator."
-      },
-      logesan: {
-        name: "Logesan Shandralingam",
-        img: "logesan.jpg",
-        details: "Allrounder with a sharp cricketing mind."
-      },
-      mayuran: {
-        name: "Mayuran Sivamoorthy",
-        img: "mayuran.jpg",
-        details: "Dependable batsman and team spirit booster."
-      },
-      don: {
-        name: "Don Sinthu",
-        img: "don.jpg",
-        details: "Versatile player and fielding expert."
-      },
-      kanesh: {
-        name: "Kanesh",
-        img: "kanesh.jpg",
-        details: "Bowler with a knack for breakthroughs."
-      },
-      pradeep: {
-        name: "Pradeep",
-        img: "pradeep.jpg",
-        details: "Solid batsman and reliable teammate."
-      },
-      rasa: {
-        name: "Rasa Suji",
-        img: "rasa.jpg",
-        details: "Energetic allrounder and motivator."
-      },
-      sudarshan: {
-        name: "Sudarshan",
-        img: "sudarshan.jpg",
-        details: "Bowler with great control and accuracy."
-      },
-      gobi: {
-        name: "Gobi Annan",
-        img: "gobi.jpg",
-        details: "Team player and dependable fielder."
-      },
-      vaishnavan: {
-        name: "Vaishnavan Selvam",
-        img: "vaishnavan.jpg",
-        details: "Young talent and promising cricketer."
-      }
-    };
+    // --- Supabase Table/Storage Names ---
+    const PLAYER_LOGS_TABLE = 'player_logs';
+    const PLAYER_PHOTOS_TABLE = 'player_photos';
+    const PLAYER_DETAILS_TABLE = 'player_details';
+    const PLAYER_PHOTOS_BUCKET = 'progress_photos';
 
-    // --- Get player from URL (?player=arun) ---
-    function getPlayerKey() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('player');
+    // --- Helper: Show loading/error ---
+    function showLogsLoading(msg = 'Loading...') {
+      document.getElementById('log-list').innerHTML = `<div style='text-align:center;padding:18px;'>${msg}</div>`;
     }
-    const playerKey = getPlayerKey();
-    const player = playerData[playerKey];
-    if (!player) {
-      document.getElementById('profile-title').textContent = 'Player Not Found';
-      document.querySelector('.profile-container').style.display = 'none';
-    } else {
-      document.getElementById('profile-title').textContent = player.name;
-      document.getElementById('profile-img').src = player.img;
-      document.getElementById('profile-name').textContent = player.name;
-      document.getElementById('profile-details').textContent = player.details;
+    function showPhotosLoading(msg = 'Loading...') {
+      document.getElementById('progress-photos').innerHTML = `<div style='text-align:center;padding:18px;'>${msg}</div>`;
     }
-
-    // --- Static login system ---
-    function getPasswordKey() {
-      return 'playerpass_' + playerKey;
+    function showDetailsLoading(msg = 'Loading...') {
+      document.getElementById('detail-name').textContent = msg;
     }
-    function getDefaultPassword() {
-      return 'mokkuteam';
+    // --- Supabase CRUD for Logs ---
+    async function fetchLogs() {
+      showLogsLoading();
+      let { data, error } = await supabase
+        .from(PLAYER_LOGS_TABLE)
+        .select('*')
+        .eq('player', playerKey)
+        .order('created_at', { ascending: false });
+      if (error) { showLogsLoading('Failed to load logs.'); return []; }
+      return data || [];
     }
-    function isLoggedIn() {
-      return localStorage.getItem('loggedin_' + playerKey) === 'true';
+    async function addLog(entry) {
+      let { error } = await supabase.from(PLAYER_LOGS_TABLE).insert([{ player: playerKey, entry }]);
+      if (error) throw error;
     }
-    function loginPlayer() {
-      const username = document.getElementById('login-username').value.trim().toLowerCase();
-      const password = document.getElementById('login-password').value;
-      if (username !== playerKey) {
-        document.getElementById('login-error').textContent = 'Incorrect username.';
-        return;
-      }
-      const savedPass = localStorage.getItem(getPasswordKey()) || getDefaultPassword();
-      if (password !== savedPass) {
-        document.getElementById('login-error').textContent = 'Incorrect password.';
-        return;
-      }
-      localStorage.setItem('loggedin_' + playerKey, 'true');
-      document.getElementById('log-form').style.display = '';
-      document.getElementById('photo-form').style.display = '';
-      document.getElementById('change-password-section').style.display = '';
-      document.getElementById('loginBtn').style.display = 'none';
-      document.getElementById('logoutBtn').style.display = '';
-      renderLogs();
-      renderPhotos();
+    async function updateLog(id, entry) {
+      let { error } = await supabase.from(PLAYER_LOGS_TABLE).update({ entry }).eq('id', id);
+      if (error) throw error;
     }
-    function logoutPlayer() {
-      localStorage.removeItem('loggedin_' + playerKey);
-      location.reload();
+    async function deleteLog(id) {
+      let { error } = await supabase.from(PLAYER_LOGS_TABLE).delete().eq('id', id);
+      if (error) throw error;
     }
-    function changePassword() {
-      const oldPass = document.getElementById('old-password').value;
-      const newPass = document.getElementById('new-password').value;
-      const savedPass = localStorage.getItem(getPasswordKey()) || getDefaultPassword();
-      if (oldPass !== savedPass) {
-        document.getElementById('change-password-error').textContent = 'Old password incorrect.';
-        return;
-      }
-      if (!newPass) {
-        document.getElementById('change-password-error').textContent = 'New password cannot be empty.';
-        return;
-      }
-      localStorage.setItem(getPasswordKey(), newPass);
-      document.getElementById('change-password-error').textContent = 'Password changed!';
+    // --- Supabase CRUD for Photos ---
+    async function fetchPhotos() {
+      showPhotosLoading();
+      let { data, error } = await supabase
+        .from(PLAYER_PHOTOS_TABLE)
+        .select('*')
+        .eq('player', playerKey)
+        .order('created_at', { ascending: false });
+      if (error) { showPhotosLoading('Failed to load photos.'); return []; }
+      return data || [];
     }
-
-    // --- Fitness & Runs Log ---
-    function getLogKey() {
-      return 'playerlog_' + playerKey;
+    async function uploadPhoto(file) {
+      // Upload to Supabase Storage
+      const fileName = `${playerKey}_${Date.now()}_${file.name}`;
+      let { error: uploadError } = await supabase.storage.from(PLAYER_PHOTOS_BUCKET).upload(fileName, file);
+      if (uploadError) throw uploadError;
+      // Get public URL
+      const { data: urlData } = supabase.storage.from(PLAYER_PHOTOS_BUCKET).getPublicUrl(fileName);
+      let url = urlData.publicUrl;
+      // Save to table
+      let { error } = await supabase.from(PLAYER_PHOTOS_TABLE).insert([{ player: playerKey, url }]);
+      if (error) throw error;
     }
-    function getLogs() {
-      return JSON.parse(localStorage.getItem(getLogKey()) || '[]');
+    async function deletePhoto(id, url) {
+      // Remove from table
+      let { error } = await supabase.from(PLAYER_PHOTOS_TABLE).delete().eq('id', id);
+      if (error) throw error;
+      // Remove from storage
+      const path = url.split('/').slice(-1)[0];
+      await supabase.storage.from(PLAYER_PHOTOS_BUCKET).remove([path]);
     }
-    function saveLogs(logs) {
-      localStorage.setItem(getLogKey(), JSON.stringify(logs));
+    // --- Supabase CRUD for Player Details ---
+    async function fetchPlayerDetails() {
+      showDetailsLoading('Loading...');
+      let { data, error } = await supabase
+        .from(PLAYER_DETAILS_TABLE)
+        .select('*')
+        .eq('player', playerKey)
+        .single();
+      if (error) { showDetailsLoading('Not set'); return {}; }
+      return data || {};
     }
-    function renderLogs() {
-      const logs = getLogs();
+    async function savePlayerDetailsSupabase(obj) {
+      // Upsert
+      let { error } = await supabase.from(PLAYER_DETAILS_TABLE).upsert([{ player: playerKey, ...obj }], { onConflict: ['player'] });
+      if (error) throw error;
+    }
+    // --- Render Logs ---
+    async function renderLogs() {
+      showLogsLoading();
+      const logs = await fetchLogs();
       const logList = document.getElementById('log-list');
       if (!logs.length) {
         logList.innerHTML = '<em>No logs yet.</em>';
         return;
       }
-      // Only show edit/delete if logged in as this player
       const canEdit = isLoggedIn();
       logList.innerHTML = logs.map((l, i) =>
         `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-          <span>${l}</span>
+          <span>${l.entry}</span>
           ${canEdit ? `<span>
-            <button class="edit-log-btn" data-idx="${i}" style="background:#fff;color:#3a86ff;border:1px solid #3a86ff;padding:2px 10px;font-size:0.95rem;border-radius:5px;cursor:pointer;">Edit</button>
-            <button class="delete-log-btn" data-idx="${i}" style="background:#fff;color:#e63946;border:1px solid #e63946;padding:2px 10px;font-size:0.95rem;border-radius:5px;cursor:pointer;">Delete</button>
+            <button class="edit-log-btn" data-id="${l.id}" style="background:#fff;color:#3a86ff;border:1px solid #3a86ff;padding:2px 10px;font-size:0.95rem;border-radius:5px;cursor:pointer;">Edit</button>
+            <button class="delete-log-btn" data-id="${l.id}" style="background:#fff;color:#e63946;border:1px solid #e63946;padding:2px 10px;font-size:0.95rem;border-radius:5px;cursor:pointer;">Delete</button>
           </span>` : ''}
         </div>`
       ).join('');
       if (canEdit) {
-        // Add event listeners for edit/delete
         document.querySelectorAll('.delete-log-btn').forEach(btn => {
-          btn.onclick = function() {
-            const idx = +this.getAttribute('data-idx');
-            const logs = getLogs();
-            logs.splice(idx, 1);
-            saveLogs(logs);
+          btn.onclick = async function() {
+            const id = this.getAttribute('data-id');
+            await deleteLog(id);
             renderLogs();
           };
         });
         document.querySelectorAll('.edit-log-btn').forEach(btn => {
-          btn.onclick = function() {
-            const idx = +this.getAttribute('data-idx');
-            const logs = getLogs();
-            const current = logs[idx];
+          btn.onclick = async function() {
+            const id = this.getAttribute('data-id');
+            const logs = await fetchLogs();
+            const current = logs.find(l => l.id == id).entry;
             const newVal = prompt('Edit your log:', current.replace(/ \(.*\)$/,''));
             if (newVal !== null && newVal.trim() !== '') {
-              // Keep the original timestamp if present
-              const tsMatch = current.match(/(\(.*\))$/);
-              logs[idx] = newVal.trim() + (tsMatch ? ' ' + tsMatch[1] : '');
-              saveLogs(logs);
+              await updateLog(id, newVal.trim());
               renderLogs();
             }
           };
         });
       }
     }
-    document.getElementById('log-form').onsubmit = function(e) {
+    document.getElementById('log-form').onsubmit = async function(e) {
       e.preventDefault();
       const entry = document.getElementById('log-entry').value.trim();
       if (!entry) return;
-      const logs = getLogs();
-      logs.unshift(entry + ' (' + new Date().toLocaleString() + ')');
-      saveLogs(logs);
+      await addLog(entry + ' (' + new Date().toLocaleString() + ')');
       document.getElementById('log-entry').value = '';
       renderLogs();
     };
-
-    // --- Progress Photos ---
-    function getPhotoKey() {
-      return 'playerphotos_' + playerKey;
-    }
-    function getPhotos() {
-      return JSON.parse(localStorage.getItem(getPhotoKey()) || '[]');
-    }
-    function savePhotos(photos) {
-      localStorage.setItem(getPhotoKey(), JSON.stringify(photos));
-    }
-    function renderPhotos() {
-      const photos = getPhotos();
+    // --- Render Photos ---
+    async function renderPhotos() {
+      showPhotosLoading();
+      const photos = await fetchPhotos();
       const container = document.getElementById('progress-photos');
       const canEdit = isLoggedIn();
       if (!photos.length) {
@@ -609,49 +527,33 @@
       }
       container.innerHTML = photos.map((p, i) =>
         `<span style="display:inline-block;position:relative;margin-right:10px;margin-bottom:10px;">
-          <img src="${p}" class="progress-img">
-          ${canEdit ? `<button class="delete-photo-btn" data-idx="${i}" style="position:absolute;top:4px;right:4px;background:#e63946;color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:1.1rem;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.12);">&times;</button>` : ''}
+          <img src="${p.url}" class="progress-img">
+          ${canEdit ? `<button class="delete-photo-btn" data-id="${p.id}" data-url="${p.url}" style="position:absolute;top:4px;right:4px;background:#e63946;color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:1.1rem;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.12);">&times;</button>` : ''}
         </span>`
       ).join('');
       if (canEdit) {
         document.querySelectorAll('.delete-photo-btn').forEach(btn => {
-          btn.onclick = function() {
-            const idx = +this.getAttribute('data-idx');
-            const photos = getPhotos();
-            photos.splice(idx, 1);
-            savePhotos(photos);
+          btn.onclick = async function() {
+            const id = this.getAttribute('data-id');
+            const url = this.getAttribute('data-url');
+            await deletePhoto(id, url);
             renderPhotos();
           };
         });
       }
     }
-    document.getElementById('photo-form').onsubmit = function(e) {
+    document.getElementById('photo-form').onsubmit = async function(e) {
       e.preventDefault();
       const file = document.getElementById('photo-upload').files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const photos = getPhotos();
-        photos.unshift(evt.target.result);
-        savePhotos(photos);
-        renderPhotos();
-      };
-      reader.readAsDataURL(file);
+      await uploadPhoto(file);
+      renderPhotos();
       document.getElementById('photo-upload').value = '';
     };
-
-    // --- Player Details Storage ---
-    function getPlayerDetailsKey() {
-      return 'playerdetails_' + playerKey;
-    }
-    function getPlayerDetails() {
-      return JSON.parse(localStorage.getItem(getPlayerDetailsKey()) || '{}');
-    }
-    function savePlayerDetails(obj) {
-      localStorage.setItem(getPlayerDetailsKey(), JSON.stringify(obj));
-    }
-    function renderPlayerDetails() {
-      const d = getPlayerDetails();
+    // --- Render Player Details ---
+    async function renderPlayerDetails() {
+      showDetailsLoading('Loading...');
+      const d = await fetchPlayerDetails();
       document.getElementById('detail-name').textContent = d.name || player.name || '';
       document.getElementById('detail-age').textContent = d.age || '';
       document.getElementById('detail-bowling').textContent = d.bowling || '';
@@ -666,10 +568,9 @@
         document.getElementById('editPlayerDetailsBtn').style.display = 'none';
       }
     }
-    renderPlayerDetails();
     // --- Edit Player Details Modal Logic ---
-    document.getElementById('editPlayerDetailsBtn').onclick = function() {
-      const d = getPlayerDetails();
+    document.getElementById('editPlayerDetailsBtn').onclick = async function() {
+      const d = await fetchPlayerDetails();
       document.getElementById('edit-detail-name').value = d.name || player.name || '';
       document.getElementById('edit-detail-age').value = d.age || '';
       document.getElementById('edit-detail-bowling').value = d.bowling || '';
@@ -682,7 +583,7 @@
     document.getElementById('closeEditPlayerDetailsModal').onclick = function() {
       document.getElementById('edit-player-details-modal').style.display = 'none';
     };
-    document.getElementById('savePlayerDetailsBtn').onclick = function() {
+    document.getElementById('savePlayerDetailsBtn').onclick = async function() {
       const d = {
         name: document.getElementById('edit-detail-name').value.trim(),
         age: document.getElementById('edit-detail-age').value.trim(),
@@ -692,102 +593,15 @@
         bestYear: document.getElementById('edit-detail-best-year').value.trim(),
         bestBowl: document.getElementById('edit-detail-best-bowl').value.trim()
       };
-      savePlayerDetails(d);
+      await savePlayerDetailsSupabase(d);
       document.getElementById('edit-player-details-modal').style.display = 'none';
       renderPlayerDetails();
     };
-
-    // --- Workout Modal Logic ---
-    const workoutModal = document.getElementById('workoutModal');
-    const selectWorkoutBtn = document.getElementById('selectWorkoutBtn');
-    const closeWorkoutModal = document.getElementById('closeWorkoutModal');
-    const workoutForm = document.getElementById('workoutForm');
-    selectWorkoutBtn.onclick = function(e) {
-      e.preventDefault();
-      workoutModal.style.display = 'flex';
-    };
-    closeWorkoutModal.onclick = function() {
-      workoutModal.style.display = 'none';
-    };
-    workoutForm.onsubmit = function(e) {
-      e.preventDefault();
-      const checked = Array.from(workoutForm.elements['workout'])
-        .filter(cb => cb.checked)
-        .map(cb => cb.value);
-      if (!checked.length) {
-        workoutModal.style.display = 'none';
-        return;
-      }
-      let details = [];
-      checked.forEach(val => {
-        let str = val;
-        // Add sets/weight/minutes if present
-        const sets = workoutForm.querySelector(`.input-sets[data-for="${val}"]`);
-        const weight = workoutForm.querySelector(`.input-weight[data-for="${val}"]`);
-        const mins = workoutForm.querySelector(`.input-minutes[data-for="${val}"]`);
-        if (sets && sets.value) str += ` (${sets.value} sets)`;
-        if (weight && weight.value) str += `, Max: ${weight.value}kg`;
-        if (mins && mins.value) str += ` (${mins.value} min)`;
-        details.push(str);
-      });
-      if (details.length) {
-        const logs = getLogs();
-        logs.unshift('Workout: ' + details.join(', ') + ' (' + new Date().toLocaleString() + ')');
-        saveLogs(logs);
-        renderLogs();
-      }
-      workoutModal.style.display = 'none';
-      // Uncheck all and clear inputs after submit
-      Array.from(workoutForm.elements['workout']).forEach(cb => cb.checked = false);
-      workoutForm.querySelectorAll('input[type=number]').forEach(inp => inp.value = '');
-    };
-
-    // --- Login/Logout button logic ---
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    function updateLoginButtons() {
-      if (isLoggedIn()) {
-        loginBtn.style.display = 'none';
-        logoutBtn.style.display = '';
-      } else {
-        loginBtn.style.display = '';
-        loginBtn.style.background = '#0d47a1';
-        loginBtn.style.color = '#fff';
-        logoutBtn.style.display = 'none';
-      }
-    }
-    loginBtn.onclick = function() {
-      // Go to login page
-      window.location.href = 'login.html?player=' + playerKey;
-    };
-    logoutBtn.onclick = function() {
-      logoutPlayer();
-    };
-    updateLoginButtons();
-
     // --- On page load ---
-    function updateProfileEditVisibility() {
-      if (isLoggedIn()) {
-        document.getElementById('log-form').style.display = '';
-        document.getElementById('photo-form').style.display = '';
-        document.getElementById('accountSettingsBtn').style.display = '';
-        loginBtn.style.display = 'none';
-        logoutBtn.style.display = '';
-      } else {
-        document.getElementById('log-form').style.display = 'none';
-        document.getElementById('photo-form').style.display = 'none';
-        document.getElementById('accountSettingsBtn').style.display = 'none';
-        loginBtn.style.display = '';
-        logoutBtn.style.display = 'none';
-      }
-    }
-    // Account Settings button click
-    document.getElementById('accountSettingsBtn').onclick = function() {
-      window.location.href = `account-settings.html?player=${playerKey}`;
-    };
     updateProfileEditVisibility();
     renderLogs();
     renderPhotos();
+    renderPlayerDetails();
     document.getElementById('pageDropdown').addEventListener('change', function() {
       window.location.href = this.value;
     });

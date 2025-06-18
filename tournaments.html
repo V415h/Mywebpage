@@ -257,34 +257,76 @@
     </div>
   </div>
   <script>
-    // --- Tournament Storage ---
-    function getTournaments() {
-      return JSON.parse(localStorage.getItem('mokku_tournaments')||'[]');
+    // --- Supabase Table Names ---
+    const TOURNAMENTS_TABLE = 'tournaments';
+    const TOURNAMENT_PLAYERS_TABLE = 'tournament_players';
+
+    // --- Helper: Show loading/error ---
+    function showLoading(msg = 'Loading...') {
+      document.getElementById('tournaments-list').innerHTML = `<div style='text-align:center;padding:24px;'>${msg}</div>`;
     }
-    function saveTournaments(list) {
-      localStorage.setItem('mokku_tournaments',JSON.stringify(list));
+    function showError(msg) {
+      document.getElementById('tournaments-list').innerHTML = `<div style='color:#e74c3c;text-align:center;padding:24px;'>${msg}</div>`;
     }
-    // --- Tournament Participation Logic ---
-    function getTournamentPlayers() {
-      return JSON.parse(localStorage.getItem('mokku_tournament_players')||'{}');
+
+    // --- Supabase CRUD ---
+    async function fetchTournaments() {
+      showLoading();
+      let { data, error } = await supabase
+        .from(TOURNAMENTS_TABLE)
+        .select('*')
+        .order('date', { ascending: false });
+      if (error) { showError('Failed to load tournaments.'); return []; }
+      return data || [];
     }
-    function saveTournamentPlayers(obj) {
-      localStorage.setItem('mokku_tournament_players', JSON.stringify(obj));
+    async function addTournament(t) {
+      let { error } = await supabase.from(TOURNAMENTS_TABLE).insert([t]);
+      if (error) throw error;
     }
-    function renderTournaments() {
-      const list = getTournaments();
-      const container = document.getElementById('tournaments-list');
+    async function updateTournament(id, t) {
+      let { error } = await supabase.from(TOURNAMENTS_TABLE).update(t).eq('id', id);
+      if (error) throw error;
+    }
+    async function deleteTournament(id) {
+      let { error } = await supabase.from(TOURNAMENTS_TABLE).delete().eq('id', id);
+      if (error) throw error;
+    }
+    async function fetchTournamentPlayers() {
+      let { data, error } = await supabase.from(TOURNAMENT_PLAYERS_TABLE).select('*');
+      if (error) return {};
+      // Convert to { tournament_id: { player: status } }
+      const obj = {};
+      for (const row of data) {
+        if (!obj[row.tournament_id]) obj[row.tournament_id] = {};
+        obj[row.tournament_id][row.player] = row.status;
+      }
+      return obj;
+    }
+    async function setTournamentPlayer(tournament_id, player, status) {
+      // Upsert
+      let { error } = await supabase.from(TOURNAMENT_PLAYERS_TABLE).upsert([
+        { tournament_id, player, status }
+      ], { onConflict: ['tournament_id', 'player'] });
+      if (error) throw error;
+    }
+
+    // --- Render Logic ---
+    async function renderTournaments() {
+      showLoading();
       const user = getPlayerLogin();
-      const playerChoices = getTournamentPlayers();
-      if(!list.length) {
+      const isadmin = isAdmin();
+      let tournaments = await fetchTournaments();
+      let playerChoices = await fetchTournamentPlayers();
+      const container = document.getElementById('tournaments-list');
+      if (!tournaments.length) {
         container.innerHTML = '<em>No tournaments yet.</em>';
         return;
       }
-      container.innerHTML = list.map((t, idx) => {
+      container.innerHTML = tournaments.map((t, idx) => {
         // Participation UI for logged-in player
         let participationUI = '';
-        if(user) {
-          const choice = (playerChoices[t.name] && playerChoices[t.name][user]) || '';
+        if (user) {
+          const choice = (playerChoices[t.id] && playerChoices[t.id][user]) || '';
           participationUI = `
             <div style='margin-top:10px;'>
               <label><input type='radio' name='play_${idx}' value='yes' ${choice==='yes'?'checked':''}/> Playing</label>
@@ -296,14 +338,14 @@
         }
         // List of available/not available players
         let available = [], notAvailable = [];
-        if(playerChoices[t.name]) {
-          for(const [player, val] of Object.entries(playerChoices[t.name])) {
-            if(val==='yes') available.push(player);
-            else if(val==='no') notAvailable.push(player);
+        if (playerChoices[t.id]) {
+          for (const [player, val] of Object.entries(playerChoices[t.id])) {
+            if (val === 'yes') available.push(player);
+            else if (val === 'no') notAvailable.push(player);
           }
         }
         let playerListUI = '';
-        if(available.length || notAvailable.length) {
+        if (available.length || notAvailable.length) {
           playerListUI = `<div style='margin-top:10px;font-size:0.98rem;'>
             <strong>Available:</strong> ${available.length ? available.map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(', ') : '<em>None</em>'}<br>
             <strong>Not Available:</strong> ${notAvailable.length ? notAvailable.map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(', ') : '<em>None</em>'}
@@ -314,139 +356,129 @@
             <div class="tournament-title">${t.name}</div>
             <div class="tournament-info">Date: ${t.date} | Start: ${t.time} | Max Players: ${t.maxPlayers}</div>
             <div class="tournament-info">Location: ${t.location ? t.location : '<em>Not set</em>'}</div>
-            ${isAdmin() ? `<button class='edit-tournament-btn' data-idx='${idx}' style='margin-top:8px;'>Edit</button> <button class='delete-tournament-btn' data-idx='${idx}' style='margin-top:8px;background:#e74c3c;border:none;color:#fff;'>Delete</button>` : ''}
+            ${isadmin ? `<button class='edit-tournament-btn' data-idx='${idx}' style='margin-top:8px;'>Edit</button> <button class='delete-tournament-btn' data-idx='${idx}' style='margin-top:8px;background:#e74c3c;border:none;color:#fff;'>Delete</button>` : ''}
             ${participationUI}
             ${playerListUI}
           </div>
         `;
       }).join('');
-      if(isAdmin()) {
-        document.querySelectorAll('.edit-tournament-btn').forEach(btn => {
+      if (isadmin) {
+        document.querySelectorAll('.edit-tournament-btn').forEach((btn, idx) => {
           btn.onclick = function() {
-            openEditTournamentModal(parseInt(this.getAttribute('data-idx')));
+            openEditTournamentModal(tournaments[idx]);
           };
         });
-        document.querySelectorAll('.delete-tournament-btn').forEach(btn => {
-          btn.onclick = function() {
-            const idx = parseInt(this.getAttribute('data-idx'));
-            if(confirm('Are you sure you want to delete this tournament?')) {
-              const list = getTournaments();
-              list.splice(idx, 1);
-              saveTournaments(list);
-              renderTournaments();
+        document.querySelectorAll('.delete-tournament-btn').forEach((btn, idx) => {
+          btn.onclick = async function() {
+            if (confirm('Are you sure you want to delete this tournament?')) {
+              try {
+                await deleteTournament(tournaments[idx].id);
+                renderTournaments();
+              } catch (e) { alert('Delete failed.'); }
             }
           };
         });
       }
       // Participation event listeners
-      if(getPlayerLogin()) {
-        document.querySelectorAll('.verify-btn').forEach(btn => {
-          btn.onclick = function() {
-            const idx = parseInt(this.getAttribute('data-idx'));
-            const radios = document.getElementsByName('play_'+idx);
+      if (user) {
+        document.querySelectorAll('.verify-btn').forEach((btn, idx) => {
+          btn.onclick = async function() {
+            const radios = document.getElementsByName('play_' + idx);
             let val = '';
-            radios.forEach(r => { if(r.checked) val = r.value; });
-            if(!val) {
-              document.getElementById('verify-status-'+idx).textContent = 'Select an option!';
+            radios.forEach(r => { if (r.checked) val = r.value; });
+            if (!val) {
+              document.getElementById('verify-status-' + idx).textContent = 'Select an option!';
               return;
             }
-            const tournaments = getTournaments();
-            const t = tournaments[idx];
-            const playerChoices = getTournamentPlayers();
-            if(!playerChoices[t.name]) playerChoices[t.name] = {};
-            playerChoices[t.name][getPlayerLogin()] = val;
-            saveTournamentPlayers(playerChoices);
-            document.getElementById('verify-status-'+idx).textContent = 'Saved!';
-            renderTournaments();
+            try {
+              await setTournamentPlayer(tournaments[idx].id, user, val);
+              document.getElementById('verify-status-' + idx).textContent = 'Saved!';
+              renderTournaments();
+            } catch (e) {
+              document.getElementById('verify-status-' + idx).textContent = 'Error!';
+            }
           };
         });
       }
     }
+
     // --- Modal Logic ---
     const addTournamentBtn = document.getElementById('addTournamentBtn');
     const addTournamentModal = document.getElementById('addTournamentModal');
     const closeAddTournamentModal = document.getElementById('closeAddTournamentModal');
     const addTournamentSubmit = document.getElementById('addTournamentSubmit');
     function updateAdminUI() {
-      // Only show add/edit if admin is logged in
-      if(isAdmin()) {
+      if (isAdmin()) {
         document.getElementById('addTournamentBtn').style.display = 'block';
       } else {
         document.getElementById('addTournamentBtn').style.display = 'none';
       }
     }
-    // Call updateAdminUI after login/logout and on page load
     updateAdminUI();
     addTournamentBtn.onclick = function() { addTournamentModal.style.display = 'flex'; };
     closeAddTournamentModal.onclick = function() { addTournamentModal.style.display = 'none'; };
-    addTournamentSubmit.onclick = function() {
+    addTournamentSubmit.onclick = async function() {
       const name = document.getElementById('tournament-name').value.trim();
       const date = document.getElementById('tournament-date').value;
       const time = document.getElementById('tournament-time').value;
       const maxPlayers = document.getElementById('tournament-maxplayers').value;
       const location = document.getElementById('tournament-location').value.trim();
-      if(!name||!date||!time||!maxPlayers||!location) return alert('All fields required');
-      const list = getTournaments();
-      list.unshift({name,date,time,maxPlayers,location});
-      saveTournaments(list);
-      addTournamentModal.style.display = 'none';
-      renderTournaments();
+      if (!name || !date || !time || !maxPlayers || !location) return alert('All fields required');
+      try {
+        await addTournament({ name, date, time, maxPlayers, location });
+        addTournamentModal.style.display = 'none';
+        renderTournaments();
+      } catch (e) { alert('Add failed.'); }
     };
     // --- Edit Tournament Modal ---
-    function openEditTournamentModal(idx) {
-      const list = getTournaments();
-      const t = list[idx];
+    function openEditTournamentModal(t) {
       document.getElementById('edit-tournament-name').value = t.name;
       document.getElementById('edit-tournament-date').value = t.date;
       document.getElementById('edit-tournament-time').value = t.time;
       document.getElementById('edit-tournament-maxplayers').value = t.maxPlayers;
       document.getElementById('edit-tournament-location').value = t.location || '';
-      document.getElementById('editTournamentModal').setAttribute('data-idx', idx);
+      document.getElementById('editTournamentModal').setAttribute('data-id', t.id);
       document.getElementById('editTournamentModal').style.display = 'flex';
     }
     document.getElementById('closeEditTournamentModal').onclick = function() {
       document.getElementById('editTournamentModal').style.display = 'none';
     };
-    document.getElementById('editTournamentSubmit').onclick = function() {
-      const idx = parseInt(document.getElementById('editTournamentModal').getAttribute('data-idx'));
+    document.getElementById('editTournamentSubmit').onclick = async function() {
+      const id = document.getElementById('editTournamentModal').getAttribute('data-id');
       const name = document.getElementById('edit-tournament-name').value.trim();
       const date = document.getElementById('edit-tournament-date').value;
       const time = document.getElementById('edit-tournament-time').value;
       const maxPlayers = document.getElementById('edit-tournament-maxplayers').value;
       const location = document.getElementById('edit-tournament-location').value.trim();
-      if(!name||!date||!time||!maxPlayers||!location) return alert('All fields required');
-      const list = getTournaments();
-      list[idx] = {name,date,time,maxPlayers,location};
-      saveTournaments(list);
-      document.getElementById('editTournamentModal').style.display = 'none';
-      renderTournaments();
+      if (!name || !date || !time || !maxPlayers || !location) return alert('All fields required');
+      try {
+        await updateTournament(id, { name, date, time, maxPlayers, location });
+        document.getElementById('editTournamentModal').style.display = 'none';
+        renderTournaments();
+      } catch (e) { alert('Edit failed.'); }
     };
-    // --- Player Login Logic ---
+    // --- Player Login Logic (unchanged) ---
     function getPlayerLogin() {
       return localStorage.getItem('mokku_player_login') || '';
     }
     function setPlayerLogin(name) {
-      if(name) localStorage.setItem('mokku_player_login', name);
+      if (name) localStorage.setItem('mokku_player_login', name);
       else localStorage.removeItem('mokku_player_login');
     }
     // --- Player Login Button Logic ---
-    // On page load, if player is logged in and redirected, remove redirect and reload
     (function() {
       const user = localStorage.getItem('mokku_player_login');
       const redirect = localStorage.getItem('mokku_login_redirect');
-      if(user && redirect && redirect === window.location.pathname) {
+      if (user && redirect && redirect === window.location.pathname) {
         localStorage.removeItem('mokku_login_redirect');
-        // Optionally, reload to update UI
         window.location.reload();
       }
     })();
-    // --- Logout on page load for demo (remove for real use) ---
-    // setAdmin(false);
     updateAdminUI();
     renderTournaments();
     document.addEventListener('DOMContentLoaded', function() {
       var dropdown = document.getElementById('pageDropdown');
-      if(dropdown) {
+      if (dropdown) {
         dropdown.addEventListener('change', function() {
           if (this.value && this.value !== window.location.pathname && this.value !== '') {
             window.location.href = this.value;
@@ -461,9 +493,8 @@
         };
       }
     });
-    // --- Admin Auth ---
+    // --- Admin Auth (unchanged) ---
     function isAdmin() {
-      // Only allow admin if mokku_player_login is 'madmin' and mokku_admin is true
       return localStorage.getItem('mokku_admin') === 'true' && localStorage.getItem('mokku_player_login') === 'madmin';
     }
   </script>

@@ -229,42 +229,76 @@
     </div>
   </div>
   <script>
-    // --- Admin Auth ---
-    function isAdmin() {
-      return localStorage.getItem('mokku_admin') === 'true' && localStorage.getItem('mokku_player_login') === 'madmin';
+    // --- Supabase Table Names ---
+    const EVENTS_TABLE = 'events';
+    const EVENT_PLAYERS_TABLE = 'event_players';
+
+    // --- Helper: Show loading/error ---
+    function showLoading(msg = 'Loading...') {
+      document.getElementById('events-list-page').innerHTML = `<div style='text-align:center;padding:24px;'>${msg}</div>`;
     }
-    // --- Event Storage ---
-    function getEvents() {
-      return JSON.parse(localStorage.getItem('mokku_events')||'[]');
+    function showError(msg) {
+      document.getElementById('events-list-page').innerHTML = `<div style='color:#e74c3c;text-align:center;padding:24px;'>${msg}</div>`;
     }
-    function saveEvents(list) {
-      localStorage.setItem('mokku_events',JSON.stringify(list));
+
+    // --- Supabase CRUD ---
+    async function fetchEvents() {
+      showLoading();
+      let { data, error } = await supabase
+        .from(EVENTS_TABLE)
+        .select('*')
+        .order('date', { ascending: false });
+      if (error) { showError('Failed to load events.'); return []; }
+      return data || [];
     }
-    // --- Player Participation Storage ---
-    function getEventPlayers() {
-      return JSON.parse(localStorage.getItem('mokku_event_players')||'{}');
+    async function addEvent(e) {
+      let { error } = await supabase.from(EVENTS_TABLE).insert([e]);
+      if (error) throw error;
     }
-    function saveEventPlayers(obj) {
-      localStorage.setItem('mokku_event_players', JSON.stringify(obj));
+    async function updateEvent(id, e) {
+      let { error } = await supabase.from(EVENTS_TABLE).update(e).eq('id', id);
+      if (error) throw error;
     }
-    function getPlayerLogin() {
-      return localStorage.getItem('mokku_player_login') || '';
+    async function deleteEvent(id) {
+      let { error } = await supabase.from(EVENTS_TABLE).delete().eq('id', id);
+      if (error) throw error;
     }
-    // --- Render Events ---
-    function renderEvents() {
-      const list = getEvents();
-      const container = document.getElementById('events-list-page');
+    async function fetchEventPlayers() {
+      let { data, error } = await supabase.from(EVENT_PLAYERS_TABLE).select('*');
+      if (error) return {};
+      // Convert to { event_id: { player: status } }
+      const obj = {};
+      for (const row of data) {
+        if (!obj[row.event_id]) obj[row.event_id] = {};
+        obj[row.event_id][row.player] = row.status;
+      }
+      return obj;
+    }
+    async function setEventPlayer(event_id, player, status) {
+      // Upsert
+      let { error } = await supabase.from(EVENT_PLAYERS_TABLE).upsert([
+        { event_id, player, status }
+      ], { onConflict: ['event_id', 'player'] });
+      if (error) throw error;
+    }
+
+    // --- Render Logic ---
+    async function renderEvents() {
+      showLoading();
       const user = getPlayerLogin();
-      const playerChoices = getEventPlayers();
-      if(!list.length) {
+      const isadmin = isAdmin();
+      let events = await fetchEvents();
+      let playerChoices = await fetchEventPlayers();
+      const container = document.getElementById('events-list-page');
+      if (!events.length) {
         container.innerHTML = '<em>No events yet.</em>';
         return;
       }
-      container.innerHTML = list.map((e, idx) => {
+      container.innerHTML = events.map((e, idx) => {
         // Participation UI for logged-in player
         let participationUI = '';
-        if(user) {
-          const choice = (playerChoices[e.name] && playerChoices[e.name][user]) || '';
+        if (user) {
+          const choice = (playerChoices[e.id] && playerChoices[e.id][user]) || '';
           participationUI = `
             <div style='margin-top:10px;'>
               <label><input type='radio' name='eventplay_${idx}' value='yes' ${choice==='yes'?'checked':''}/> Available</label>
@@ -276,14 +310,14 @@
         }
         // List of available/not available players
         let available = [], notAvailable = [];
-        if(playerChoices[e.name]) {
-          for(const [player, val] of Object.entries(playerChoices[e.name])) {
-            if(val==='yes') available.push(player);
-            else if(val==='no') notAvailable.push(player);
+        if (playerChoices[e.id]) {
+          for (const [player, val] of Object.entries(playerChoices[e.id])) {
+            if (val === 'yes') available.push(player);
+            else if (val === 'no') notAvailable.push(player);
           }
         }
         let playerListUI = '';
-        if(available.length || notAvailable.length) {
+        if (available.length || notAvailable.length) {
           playerListUI = `<div style='margin-top:10px;font-size:0.98rem;'>
             <strong>Available:</strong> ${available.length ? available.map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(', ') : '<em>None</em>'}<br>
             <strong>Not Available:</strong> ${notAvailable.length ? notAvailable.map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(', ') : '<em>None</em>'}
@@ -294,61 +328,59 @@
             <div class="event-title">${e.name}</div>
             <div class="event-info">Date: ${e.date} | Start: ${e.time} | Max Guests: ${e.maxGuests}</div>
             <div class="event-info">Location: ${e.location ? e.location : '<em>Not set</em>'}</div>
-            ${isAdmin() ? `<button class='edit-event-btn' data-idx='${idx}' style='margin-top:8px;'>Edit</button> <button class='delete-event-btn' data-idx='${idx}' style='margin-top:8px;background:#e74c3c;border:none;color:#fff;'>Delete</button>` : ''}
+            ${isadmin ? `<button class='edit-event-btn' data-idx='${idx}' style='margin-top:8px;'>Edit</button> <button class='delete-event-btn' data-idx='${idx}' style='margin-top:8px;background:#e74c3c;border:none;color:#fff;'>Delete</button>` : ''}
             ${participationUI}
             ${playerListUI}
           </div>
         `;
       }).join('');
-      if(isAdmin()) {
-        document.querySelectorAll('.edit-event-btn').forEach(btn => {
+      if (isadmin) {
+        document.querySelectorAll('.edit-event-btn').forEach((btn, idx) => {
           btn.onclick = function() {
-            openEditEventModal(parseInt(this.getAttribute('data-idx')));
+            openEditEventModal(events[idx]);
           };
         });
-        document.querySelectorAll('.delete-event-btn').forEach(btn => {
-          btn.onclick = function() {
-            const idx = parseInt(this.getAttribute('data-idx'));
-            if(confirm('Are you sure you want to delete this event?')) {
-              const list = getEvents();
-              list.splice(idx, 1);
-              saveEvents(list);
-              renderEvents();
+        document.querySelectorAll('.delete-event-btn').forEach((btn, idx) => {
+          btn.onclick = async function() {
+            if (confirm('Are you sure you want to delete this event?')) {
+              try {
+                await deleteEvent(events[idx].id);
+                renderEvents();
+              } catch (e) { alert('Delete failed.'); }
             }
           };
         });
       }
       // Participation event listeners
-      if(getPlayerLogin()) {
-        document.querySelectorAll('.event-verify-btn').forEach(btn => {
-          btn.onclick = function() {
-            const idx = parseInt(this.getAttribute('data-idx'));
-            const radios = document.getElementsByName('eventplay_'+idx);
+      if (user) {
+        document.querySelectorAll('.event-verify-btn').forEach((btn, idx) => {
+          btn.onclick = async function() {
+            const radios = document.getElementsByName('eventplay_' + idx);
             let val = '';
-            radios.forEach(r => { if(r.checked) val = r.value; });
-            if(!val) {
-              document.getElementById('event-verify-status-'+idx).textContent = 'Select an option!';
+            radios.forEach(r => { if (r.checked) val = r.value; });
+            if (!val) {
+              document.getElementById('event-verify-status-' + idx).textContent = 'Select an option!';
               return;
             }
-            const events = getEvents();
-            const e = events[idx];
-            const playerChoices = getEventPlayers();
-            if(!playerChoices[e.name]) playerChoices[e.name] = {};
-            playerChoices[e.name][getPlayerLogin()] = val;
-            saveEventPlayers(playerChoices);
-            document.getElementById('event-verify-status-'+idx).textContent = 'Saved!';
-            renderEvents();
+            try {
+              await setEventPlayer(events[idx].id, user, val);
+              document.getElementById('event-verify-status-' + idx).textContent = 'Saved!';
+              renderEvents();
+            } catch (e) {
+              document.getElementById('event-verify-status-' + idx).textContent = 'Error!';
+            }
           };
         });
       }
     }
+
     // --- Modal Logic ---
     const addEventBtn = document.getElementById('addEventBtn');
     const addEventModal = document.getElementById('addEventModal');
     const closeAddEventModal = document.getElementById('closeAddEventModal');
     const addEventSubmit = document.getElementById('addEventSubmit');
     function updateAdminUI() {
-      if(isAdmin()) {
+      if (isAdmin()) {
         addEventBtn.style.display = 'block';
       } else {
         addEventBtn.style.display = 'none';
@@ -356,49 +388,51 @@
     }
     addEventBtn.onclick = function() { addEventModal.style.display = 'flex'; };
     closeAddEventModal.onclick = function() { addEventModal.style.display = 'none'; };
-    addEventSubmit.onclick = function() {
+    addEventSubmit.onclick = async function() {
       const name = document.getElementById('event-name').value.trim();
       const date = document.getElementById('event-date').value;
       const time = document.getElementById('event-time').value;
       const maxGuests = document.getElementById('event-maxguests').value;
       const location = document.getElementById('event-location').value.trim();
-      if(!name||!date||!time||!maxGuests||!location) return alert('All fields required');
-      const list = getEvents();
-      list.unshift({name,date,time,maxGuests,location});
-      saveEvents(list);
-      addEventModal.style.display = 'none';
-      renderEvents();
+      if (!name || !date || !time || !maxGuests || !location) return alert('All fields required');
+      try {
+        await addEvent({ name, date, time, maxGuests, location });
+        addEventModal.style.display = 'none';
+        renderEvents();
+      } catch (e) { alert('Add failed.'); }
     };
     // --- Edit Event Modal ---
-    function openEditEventModal(idx) {
-      const list = getEvents();
-      const e = list[idx];
+    function openEditEventModal(e) {
       document.getElementById('edit-event-name').value = e.name;
       document.getElementById('edit-event-date').value = e.date;
       document.getElementById('edit-event-time').value = e.time;
       document.getElementById('edit-event-maxguests').value = e.maxGuests;
       document.getElementById('edit-event-location').value = e.location || '';
-      document.getElementById('editEventModal').setAttribute('data-idx', idx);
+      document.getElementById('editEventModal').setAttribute('data-id', e.id);
       document.getElementById('editEventModal').style.display = 'flex';
     }
     document.getElementById('closeEditEventModal').onclick = function() {
       document.getElementById('editEventModal').style.display = 'none';
     };
-    document.getElementById('editEventSubmit').onclick = function() {
-      const idx = parseInt(document.getElementById('editEventModal').getAttribute('data-idx'));
+    document.getElementById('editEventSubmit').onclick = async function() {
+      const id = document.getElementById('editEventModal').getAttribute('data-id');
       const name = document.getElementById('edit-event-name').value.trim();
       const date = document.getElementById('edit-event-date').value;
       const time = document.getElementById('edit-event-time').value;
       const maxGuests = document.getElementById('edit-event-maxguests').value;
       const location = document.getElementById('edit-event-location').value.trim();
-      if(!name||!date||!time||!maxGuests||!location) return alert('All fields required');
-      const list = getEvents();
-      list[idx] = {name,date,time,maxGuests,location};
-      saveEvents(list);
-      document.getElementById('editEventModal').style.display = 'none';
-      renderEvents();
+      if (!name || !date || !time || !maxGuests || !location) return alert('All fields required');
+      try {
+        await updateEvent(id, { name, date, time, maxGuests, location });
+        document.getElementById('editEventModal').style.display = 'none';
+        renderEvents();
+      } catch (e) { alert('Edit failed.'); }
     };
-    // --- Login/Logout Button Logic (reuse from tournaments) ---
+    // --- Player Login Logic (unchanged) ---
+    function getPlayerLogin() {
+      return localStorage.getItem('mokku_player_login') || '';
+    }
+    // --- Login/Logout Button Logic (unchanged) ---
     function updatePlayerLoginBtn() {
       const user = localStorage.getItem('mokku_player_login');
       const btnSection = document.getElementById('playerLoginBtnSection');
@@ -421,7 +455,7 @@
     }
     updatePlayerLoginBtn();
     updateAdminUI();
-    // --- Dropdown Navigation ---
+    // --- Dropdown Navigation (unchanged) ---
     var dropdown = document.getElementById('pageDropdown');
     if(dropdown && !dropdown.hasAttribute('data-listener')) {
       dropdown.addEventListener('change', function() {
@@ -431,6 +465,9 @@
     }
     // --- Render Events on Load ---
     renderEvents();
+    // --- Admin Auth (unchanged) ---
+    function isAdmin() {
+      return localStorage.getItem('mokku_admin') === 'true' && localStorage.getItem('mokku_player_login') === 'madmin';
+    }
   </script>
-</body>
-</html>
+  <!-- ...existing code... -->
