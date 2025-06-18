@@ -9,7 +9,7 @@
 <body>
   <header class="navbar">
     <div class="logo">
-      <img src="assets/logo.png" alt="Team Logo" height="48">
+      <a href="index.html"><img src="assets/logo.png" alt="Team Logo" height="48"></a>
     </div>
     <nav style="display:flex;align-items:center;gap:1rem;">
       <select class="nav-dropdown" onchange="location = this.value;">
@@ -43,11 +43,27 @@
   </main>
   <script src="events.js"></script>
   <script>
-    // Login button logic
-    document.getElementById('login-btn').onclick = function() {
-      sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'index.html');
-      window.location.href = 'login.html';
-    };
+    // Login/Logout button logic
+    function isLoggedIn() {
+      return localStorage.getItem('role') === 'admin' || localStorage.getItem('role') === 'player';
+    }
+    const loginBtn = document.getElementById('login-btn');
+    function updateLoginBtn() {
+      if (isLoggedIn()) {
+        loginBtn.textContent = 'Log out';
+        loginBtn.onclick = function() {
+          localStorage.removeItem('role');
+          location.reload();
+        };
+      } else {
+        loginBtn.textContent = 'Login';
+        loginBtn.onclick = function() {
+          sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'index.html');
+          window.location.href = 'login.html';
+        };
+      }
+    }
+    updateLoginBtn();
   </script>
 </body>
 </html>

@@ -76,25 +76,44 @@ document.addEventListener('DOMContentLoaded', function() {
     tournamentsList.querySelectorAll('li').forEach(li => {
       if (li.classList.contains('no-tournaments-msg')) return;
       const name = li.querySelector('strong')?.textContent || '';
-      const dateTime = li.innerHTML.match(/\(([^)]+)\)/)?.[1] || '';
-      const [date, startTime] = dateTime.split(' ');
-      const maxPlayer = li.innerHTML.match(/Max Players:<\/b> ([^<]+)/)?.[1] || '';
-      const location = li.innerHTML.match(/Location:<\/b> ([^<]+)/)?.[1] || '';
+      const dateText = li.innerHTML.match(/<b>Date:<\/b> ([^<]+)<br>/)?.[1] || '';
+      // Convert DD/MM/YYYY to YYYY-MM-DD for storage
+      let date = '';
+      if (dateText) {
+        const [d, m, y] = dateText.split('/');
+        date = y && m && d ? `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}` : '';
+      }
+      const startTime = li.innerHTML.match(/<b>Start Time:<\/b> ([^<]+)<br>/)?.[1] || '';
+      const maxPlayer = li.innerHTML.match(/<b>Max Players:<\/b> ([^<]+)<br>/)?.[1] || '';
+      const location = li.innerHTML.match(/<b>Location:<\/b> ([^<]+)<br>/)?.[1] || '';
       const [street, postcode, city, country] = location.split(',').map(s => s.trim());
-      const desc = li.childNodes[6]?.textContent?.replace('EditDelete','').trim() || '';
+      const desc = li.innerHTML.match(/<b>Notes:<\/b> ([^<]*)<br>/)?.[1] || '';
       tournaments.push({ name, date, startTime, maxPlayer, street, postcode, city, country, desc });
     });
     saveTournamentsToSupabase(tournaments);
   }
 
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const [year, month, day] = dateStr.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
   // Call after any change
   function addTournamentToList(name, date, startTime, maxPlayer, street, postcode, city, country, desc) {
     const li = document.createElement('li');
-    li.innerHTML = `<strong>${name}</strong> (${date} ${startTime})<br>
+    li.innerHTML = `<strong>${name}</strong><br>
+      <b>Date:</b> ${formatDate(date)}<br>
+      <b>Start Time:</b> ${startTime}<br>
       <b>Max Players:</b> ${maxPlayer}<br>
       <b>Location:</b> ${street}, ${postcode}, ${city}, ${country}<br>
-      ${desc} <button class='edit-btn'>Edit</button> <button class='delete-btn'>Delete</button>`;
+      <b>Notes:</b> ${desc}<br>
+      <button class='edit-btn'>Edit</button> <button class='delete-btn'>Delete</button>`;
     tournamentsList.appendChild(li);
+    // Hide edit/delete if not admin
+    if (getRole() !== 'admin') {
+      li.querySelectorAll('.edit-btn, .delete-btn').forEach(btn => btn.style.display = 'none');
+    }
     updateNoTournamentsMsg();
   }
 
@@ -127,11 +146,26 @@ document.addEventListener('DOMContentLoaded', function() {
       saveTournaments();
     } else if (e.target.classList.contains('edit-btn')) {
       const li = e.target.parentElement;
-      const [name, rest] = li.innerText.split(' (');
-      const [date] = rest.split(')');
+      // Parse fields from the card
+      const name = li.querySelector('strong')?.textContent || '';
+      const dateText = li.innerHTML.match(/<b>Date:<\/b> ([^<]+)<br>/)?.[1] || '';
+      // Convert DD/MM/YYYY to YYYY-MM-DD for input
+      const [d, m, y] = dateText.split('/');
+      const date = y && m && d ? `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}` : '';
+      const startTime = li.innerHTML.match(/<b>Start Time:<\/b> ([^<]+)<br>/)?.[1] || '';
+      const maxPlayer = li.innerHTML.match(/<b>Max Players:<\/b> ([^<]+)<br>/)?.[1] || '';
+      const location = li.innerHTML.match(/<b>Location:<\/b> ([^<]+)<br>/)?.[1] || '';
+      const [street, postcode, city, country] = location.split(',').map(s => s.trim());
+      const desc = li.innerHTML.match(/<b>Notes:<\/b> ([^<]+)<br>/)?.[1] || '';
       document.getElementById('event-name').value = name;
       document.getElementById('event-date').value = date;
-      document.getElementById('event-desc').value = li.childNodes[6].textContent.trim();
+      document.getElementById('start-time').value = startTime;
+      document.getElementById('max-player').value = maxPlayer;
+      document.getElementById('streetname').value = street || '';
+      document.getElementById('postcode').value = postcode || '';
+      document.getElementById('city').value = city || '';
+      document.getElementById('country').value = country || '';
+      document.getElementById('event-desc').value = desc;
       li.remove();
       updateNoTournamentsMsg();
       updateRoleUI();

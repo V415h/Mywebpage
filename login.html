@@ -9,7 +9,7 @@
 <body>
   <header class="navbar">
     <div class="logo">
-      <img src="assets/logo.png" alt="Team Logo" height="48">
+      <a href="index.html"><img src="assets/logo.png" alt="Team Logo" height="48"></a>
     </div>
     <nav style="display:flex;align-items:center;gap:1rem;">
       <select class="nav-dropdown" onchange="location = this.value;">
@@ -32,5 +32,27 @@
     </form>
   </main>
   <script src="login.js"></script>
+  <script>
+    // Login/Logout button logic
+    function isLoggedIn() {
+      return localStorage.getItem('role') === 'admin' || localStorage.getItem('role') === 'player';
+    }
+    const loginBtn = document.getElementById('login-btn');
+    function updateLoginBtn() {
+      if (isLoggedIn()) {
+        loginBtn.textContent = 'Log out';
+        loginBtn.disabled = false;
+        loginBtn.onclick = function() {
+          localStorage.removeItem('role');
+          location.reload();
+        };
+      } else {
+        loginBtn.textContent = 'Login';
+        loginBtn.disabled = true;
+        loginBtn.onclick = null;
+      }
+    }
+    updateLoginBtn();
+  </script>
 </body>
 </html>

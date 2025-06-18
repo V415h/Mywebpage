@@ -5,11 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cricket Team - Home</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
 </head>
 <body>
   <header class="navbar">
     <div class="logo">
-      <img src="assets/logo.png" alt="Team Logo" height="48">
+      <a href="index.html"><img src="assets/logo.png" alt="Team Logo" height="48"></a>
     </div>
     <nav style="display:flex;align-items:center;gap:1rem;">
       <select class="nav-dropdown" onchange="location = this.value;">
@@ -29,7 +30,7 @@
     </div>
     <div class="card tournaments">
       <h2>Upcoming Tournaments</h2>
-      <ul>
+      <ul id="tournament-list">
         <li>Stay tuned for updates!</li>
       </ul>
     </div>
@@ -40,12 +41,29 @@
       </ul>
     </div>
   </main>
+  <script src="tournaments-preview.js"></script>
   <script>
-    // Login button logic
-    document.getElementById('login-btn').onclick = function() {
-      sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'index.html');
-      window.location.href = 'login.html';
-    };
+    // Login/Logout button logic
+    function isLoggedIn() {
+      return localStorage.getItem('role') === 'admin' || localStorage.getItem('role') === 'player';
+    }
+    const loginBtn = document.getElementById('login-btn');
+    function updateLoginBtn() {
+      if (isLoggedIn()) {
+        loginBtn.textContent = 'Log out';
+        loginBtn.onclick = function() {
+          localStorage.removeItem('role');
+          location.reload();
+        };
+      } else {
+        loginBtn.textContent = 'Login';
+        loginBtn.onclick = function() {
+          sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'index.html');
+          window.location.href = 'login.html';
+        };
+      }
+    }
+    updateLoginBtn();
   </script>
 </body>
 </html>
