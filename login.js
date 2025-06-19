@@ -8,22 +8,24 @@ form.addEventListener('submit', async function(e) {
   try {
     users = await getUsers();
     if (!Array.isArray(users)) {
-      alert('Could not fetch users from Supabase.');
-      console.error('Supabase returned:', users);
+      loginMsg.textContent = 'Could not fetch users from Supabase.';
+      loginMsg.style.color = 'red';
       return;
     }
   } catch (err) {
-    alert('Error fetching users from Supabase.');
-    console.error('Fetch error:', err);
+    loginMsg.textContent = 'Error fetching users from Supabase.';
+    loginMsg.style.color = 'red';
     return;
   }
   if (!users.length) {
-    alert('No users found in Supabase.');
+    loginMsg.textContent = 'No users found in Supabase.';
+    loginMsg.style.color = 'red';
     return;
   }
   const user = users.find(u => u.username === username && u.password === password);
   if (!user) {
-    alert('Invalid username or password!');
+    loginMsg.textContent = 'Invalid username or password!';
+    loginMsg.style.color = 'red';
     return;
   }
   localStorage.setItem('role', user.role);
@@ -32,16 +34,22 @@ form.addEventListener('submit', async function(e) {
   } else {
     localStorage.removeItem('player');
   }
-  // Go back to previous page
-  const prev = sessionStorage.getItem('prevPage') || 'index.html';
-  if (prev.startsWith('player-info.html')) {
-    // Preserve query string if present
-    const query = sessionStorage.getItem('prevQuery') || '';
-    window.location.href = prev + (query ? '?' + query : '');
-  } else {
-    window.location.href = prev;
-  }
+  loginMsg.textContent = 'Successfully logged in!';
+  loginMsg.style.color = 'green';
+  if (window.showEditUserBtn) window.showEditUserBtn();
+  // You can add logic to show a Go Back button in login.html as previously implemented
 });
+
+// Add a message area under the login button
+const loginForm = document.querySelector('.login-form');
+let loginMsg = document.getElementById('login-msg');
+if (!loginMsg) {
+  loginMsg = document.createElement('div');
+  loginMsg.id = 'login-msg';
+  loginMsg.style.marginTop = '1em';
+  loginMsg.style.textAlign = 'center';
+  loginForm.appendChild(loginMsg);
+}
 
 const addUserBtn = document.getElementById('add-user-btn');
 const addUserModal = document.getElementById('add-user-modal');

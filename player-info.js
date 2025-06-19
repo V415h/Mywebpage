@@ -28,6 +28,7 @@ document.getElementById('career-details').textContent = careerMap[playerName] ||
 // --- Career Details CRUD with Supabase ---
 const careerFields = [
   { id: 'career-age', label: 'Age', type: 'number' },
+  { id: 'career-jersy', label: 'Jersey No', type: 'number' },
   { id: 'career-batting', label: 'Batting Style', type: 'text' },
   { id: 'career-bowling', label: 'Bowling Style', type: 'text' },
   { id: 'career-best', label: 'Career Best Score', type: 'number' },
@@ -74,6 +75,7 @@ async function loadCareerDetails() {
   // Map DB fields to form fields
   renderCareerForm({
     'career-age': data.age || '',
+    'career-jersy': data.jersy_no || '',
     'career-batting': data.batting_style || '',
     'career-bowling': data.bowling_style || '',
     'career-best': data.career_best_score || '',
@@ -90,6 +92,7 @@ async function saveCareerDetails() {
   const values = {
     player_name: playerName,
     age: parseInt(document.getElementById('career-age').value) || null,
+    jersy_no: parseInt(document.getElementById('career-jersy').value) || null,
     batting_style: document.getElementById('career-batting').value,
     bowling_style: document.getElementById('career-bowling').value,
     career_best_score: parseInt(document.getElementById('career-best').value) || null,
@@ -128,14 +131,14 @@ function createWorkoutModal() {
     { name: 'Bench Press', isWeight: true },
     { name: 'Squat', isWeight: true },
     { name: 'Deadlift', isWeight: true },
-    { name: 'Pull Ups', isWeight: false },
-    { name: 'Push Ups', isWeight: false },
-    { name: 'Plank', isWeight: false },
+    { name: 'Pull Ups', isWeight: false, isMinutes: false },
+    { name: 'Push Ups', isWeight: false, isMinutes: false },
+    { name: 'Plank', isWeight: false, isMinutes: true },
     { name: 'Bicep Curl', isWeight: true },
     { name: 'Tricep Extension', isWeight: true },
     { name: 'Shoulder Press', isWeight: true },
-    { name: 'Cardio', isWeight: false },
-    { name: 'Swimming', isWeight: false }
+    { name: 'Cardio', isWeight: false, isMinutes: true },
+    { name: 'Swimming', isWeight: false, isMinutes: true }
   ];
 
   const form = document.createElement('form');
@@ -174,17 +177,32 @@ function createWorkoutModal() {
       });
       row.appendChild(weightInput);
     }
-    const setsInput = document.createElement('input');
-    setsInput.type = 'number';
-    setsInput.placeholder = 'Sets';
-    setsInput.style.marginLeft = '1em';
-    setsInput.style.width = '60px';
-    setsInput.min = 1;
-    setsInput.disabled = true;
-    cb.addEventListener('change', function() {
-      setsInput.disabled = !cb.checked;
-    });
-    row.appendChild(setsInput);
+    let setsOrMinutesInput;
+    if (w.isMinutes) {
+      setsOrMinutesInput = document.createElement('input');
+      setsOrMinutesInput.type = 'number';
+      setsOrMinutesInput.placeholder = 'Minutes';
+      setsOrMinutesInput.style.marginLeft = '1em';
+      setsOrMinutesInput.style.width = '60px';
+      setsOrMinutesInput.min = 1;
+      setsOrMinutesInput.disabled = true;
+      cb.addEventListener('change', function() {
+        setsOrMinutesInput.disabled = !cb.checked;
+      });
+      row.appendChild(setsOrMinutesInput);
+    } else {
+      setsOrMinutesInput = document.createElement('input');
+      setsOrMinutesInput.type = 'number';
+      setsOrMinutesInput.placeholder = 'Sets';
+      setsOrMinutesInput.style.marginLeft = '1em';
+      setsOrMinutesInput.style.width = '60px';
+      setsOrMinutesInput.min = 1;
+      setsOrMinutesInput.disabled = true;
+      cb.addEventListener('change', function() {
+        setsOrMinutesInput.disabled = !cb.checked;
+      });
+      row.appendChild(setsOrMinutesInput);
+    }
     form.appendChild(row);
   });
   const saveBtn = document.createElement('button');
@@ -220,17 +238,17 @@ function createWorkoutModal() {
       if (cb.checked) {
         anyChecked = true;
         const w = workouts[i];
-        // Find the correct inputs for weight and sets
-        let weight = null, sets = null;
-        // Find all inputs in the row (cb.parentElement)
+        // Find the correct inputs for weight and sets/minutes
+        let weight = null, sets = null, minutes = null;
         const inputs = cb.parentElement.querySelectorAll('input');
         if (w.isWeight) {
           weight = parseInt(inputs[1]?.value) || null;
           sets = parseInt(inputs[2]?.value) || null;
+        } else if (w.isMinutes) {
+          minutes = parseInt(inputs[1]?.value) || null;
         } else {
           sets = parseInt(inputs[1]?.value) || null;
         }
-        // Save to Supabase
         await supabase.from('player_workout_logs').insert([
           {
             player_name: playerName,
@@ -238,14 +256,10 @@ function createWorkoutModal() {
             workout: w.name,
             is_weight: w.isWeight,
             weight: weight,
-            sets: sets
+            sets: sets,
+            minutes: minutes
           }
         ]);
-        // Add to logs UI
-        const logMsg = w.isWeight
-          ? `${w.name}: ${sets || '?'} sets @ ${weight || '?'}kg`
-          : `${w.name}: ${sets || '?'} sets`;
-        addLogToSupabaseAndUI(logMsg);
       }
     }
     if (!anyChecked) {
@@ -253,6 +267,7 @@ function createWorkoutModal() {
       return;
     }
     modal.remove();
+    loadAllWorkoutLogs();
   };
 
   modal.appendChild(form);
@@ -310,6 +325,7 @@ async function loadAllWorkoutLogs() {
     .from('player_workout_logs')
     .select('*')
     .eq('player_name', playerName)
+    .order('date', { ascending: false })
     .order('created_at', { ascending: false });
   const workoutLogsList = document.getElementById('workout-logs-list');
   workoutLogsList.innerHTML = '';
@@ -317,44 +333,129 @@ async function loadAllWorkoutLogs() {
     workoutLogsList.innerHTML = '<li>No workout logs yet.</li>';
     return;
   }
+  // Group logs by date
+  const grouped = {};
   data.forEach(log => {
-    const dateStr = log.created_at ? new Date(log.created_at).toLocaleDateString() : '';
-    let msg = `[${dateStr}] ${log.workout}`;
+    const dateStr = log.date || (log.created_at ? new Date(log.created_at).toISOString().slice(0,10) : '');
+    if (!grouped[dateStr]) grouped[dateStr] = [];
+    let msg = `${log.workout}`;
     if (log.is_weight) {
       msg += `: ${log.sets || '?'} sets @ ${log.weight || '?'}kg`;
+    } else if (log.minutes) {
+      msg += `: ${log.minutes} min`;
     } else if (log.sets) {
       msg += `: ${log.sets} sets`;
     }
+    grouped[dateStr].push({msg, log});
+  });
+  Object.entries(grouped).forEach(([dateStr, logs]) => {
     const li = document.createElement('li');
-    li.textContent = msg;
-    // Only allow edit/delete for the assigned player
-    if (localStorage.getItem('player') === playerName) {
+    li.textContent = `[${dateStr}] ` + logs.map(l => l.msg).join(', ');
+    // Only allow edit/delete for the assigned player (one button per line)
+    if (isCurrentPlayer()) {
       const editBtn = document.createElement('button');
       editBtn.textContent = 'Edit';
       editBtn.style.marginLeft = '1em';
       editBtn.onclick = function() {
-        const newSets = prompt('Edit sets:', log.sets || '');
-        let newWeight = log.weight;
-        if (log.is_weight) {
-          newWeight = prompt('Edit weight (kg):', log.weight || '');
-        }
-        if (newSets !== null && newSets.trim() !== '') {
-          updateWorkoutLog(log.id, newSets.trim(), newWeight);
-        }
+        // Create a modal for editing all workouts for this date
+        const modal = document.createElement('div');
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100vw';
+        modal.style.height = '100vh';
+        modal.style.background = 'rgba(0,0,0,0.4)';
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.style.zIndex = '1000';
+        const form = document.createElement('form');
+        form.style.background = '#fff';
+        form.style.padding = '2em 1.5em';
+        form.style.borderRadius = '12px';
+        form.style.minWidth = '320px';
+        form.style.maxWidth = '90vw';
+        form.style.boxShadow = '0 4px 24px rgba(21,101,192,0.18)';
+        form.innerHTML = `<h3>Edit Workouts for ${dateStr}</h3>`;
+        const fields = [];
+        logs.forEach((l, idx) => {
+          const row = document.createElement('div');
+          row.style.marginBottom = '1em';
+          row.innerHTML = `<b>${l.log.workout}</b>`;
+          const setsInput = document.createElement('input');
+          setsInput.type = 'number';
+          setsInput.placeholder = 'Sets';
+          setsInput.value = l.log.sets || '';
+          setsInput.style.marginLeft = '1em';
+          setsInput.style.width = '60px';
+          row.appendChild(setsInput);
+          let weightInput = null;
+          if (l.log.is_weight) {
+            weightInput = document.createElement('input');
+            weightInput.type = 'number';
+            weightInput.placeholder = 'Weight (kg)';
+            weightInput.value = l.log.weight || '';
+            weightInput.style.marginLeft = '1em';
+            weightInput.style.width = '80px';
+            row.appendChild(weightInput);
+          }
+          form.appendChild(row);
+          fields.push({id: l.log.id, setsInput, weightInput});
+        });
+        const saveBtn = document.createElement('button');
+        saveBtn.type = 'submit';
+        saveBtn.textContent = 'Save';
+        saveBtn.style.marginTop = '1em';
+        saveBtn.style.background = '#1565c0';
+        saveBtn.style.color = '#fff';
+        saveBtn.style.border = 'none';
+        saveBtn.style.borderRadius = '6px';
+        saveBtn.style.padding = '0.5rem 1.2rem';
+        saveBtn.style.fontWeight = 'bold';
+        saveBtn.style.cursor = 'pointer';
+        form.appendChild(saveBtn);
+        const cancelBtn = document.createElement('button');
+        cancelBtn.type = 'button';
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.style.marginLeft = '1em';
+        cancelBtn.onclick = function(e) {
+          e.preventDefault();
+          modal.remove();
+        };
+        form.appendChild(cancelBtn);
+        form.onsubmit = async function(e) {
+          e.preventDefault();
+          for (const f of fields) {
+            const newSets = f.setsInput.value;
+            const newWeight = f.weightInput ? f.weightInput.value : null;
+            await updateWorkoutLog(f.id, newSets, newWeight);
+          }
+          modal.remove();
+          loadAllWorkoutLogs();
+        };
+        modal.appendChild(form);
+        document.body.appendChild(modal);
       };
-      li.appendChild(editBtn);
       const delBtn = document.createElement('button');
       delBtn.textContent = 'Delete';
       delBtn.style.marginLeft = '0.5em';
       delBtn.onclick = function() {
-        if (confirm('Delete this workout log?')) {
-          deleteWorkoutLog(log.id);
+        if (confirm('Delete all workout logs for this date?')) {
+          logs.forEach(l => deleteWorkoutLog(l.log.id));
         }
       };
+      li.appendChild(editBtn);
       li.appendChild(delBtn);
     }
     workoutLogsList.appendChild(li);
   });
+}
+
+// Helper: case-insensitive, trimmed player match
+function isCurrentPlayer() {
+  const stored = (localStorage.getItem('player') || '').trim().toLowerCase();
+  const urlName = (playerName || '').trim().toLowerCase();
+  return stored === urlName;
 }
 
 async function updateLog(id, newLog) {
@@ -384,6 +485,9 @@ async function deleteWorkoutLog(id) {
 // On load, show all logs for this player
 loadAllLogs();
 loadAllWorkoutLogs();
+
+// Load career details on page load
+loadCareerDetails();
 
 // When adding a new log, reload all logs
 async function addLogToSupabaseAndUI(logMsg) {
@@ -426,10 +530,16 @@ if (currentPlayer === playerName) {
   }
 }
 
-// Only show the workout logs section if the user is the assigned player or an admin
+// Only show the workout logs section (list) for everyone, but only show the button for assigned player
 const workoutLogsSection = document.querySelectorAll('.player-info-logs')[1];
-if (!(localStorage.getItem('player') === playerName || localStorage.getItem('role') === 'admin')) {
-  workoutLogsSection.style.display = 'none';
+const workoutLogBtn = document.getElementById('workout-log-btn');
+if (workoutLogsSection) {
+  workoutLogsSection.style.display = '';
+  if (!(localStorage.getItem('player') === playerName)) {
+    if (workoutLogBtn) workoutLogBtn.style.display = 'none';
+  } else {
+    if (workoutLogBtn) workoutLogBtn.style.display = '';
+  }
 }
 
 // Only show the player logs section for everyone, but only allow edit/add for assigned player or admin
@@ -468,3 +578,13 @@ if (isAdmin()) {
 if (!isAdmin()) {
   document.querySelectorAll('#career-details input').forEach(input => input.disabled = true);
 }
+
+/*
+ * IMPORTANT: Ensure your Supabase table has a unique constraint on player_name for upsert to work:
+ *
+ *   alter table player_career add constraint unique_player_name unique(player_name);
+ *
+ * Also, check your Supabase Row Level Security (RLS) policies to allow select and upsert for the right users.
+ */
+
+// End of file: ensure no syntax errors

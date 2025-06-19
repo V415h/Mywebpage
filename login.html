@@ -53,19 +53,19 @@
       <select id="assign-player">
         <option value="">-- Select Player --</option>
         <option value="Santhuru Sivamoorthy">Santhuru Sivamoorthy</option>
-        <option value="Vithuran">Vithuran</option>
-        <option value="Jenagan">Jenagan</option>
-        <option value="Arun">Arun</option>
-        <option value="Rion Ockers">Rion Ockers</option>
-        <option value="Logesan Shandralingam">Logesan Shandralingam</option>
-        <option value="Mayuran Sivamoorthy">Mayuran Sivamoorthy</option>
-        <option value="Don Sinthu">Don Sinthu</option>
-        <option value="Kanesh">Kanesh</option>
-        <option value="Pradeep">Pradeep</option>
-        <option value="Rasa Suji">Rasa Suji</option>
-        <option value="Sudarshan">Sudarshan</option>
+        <option value="Vithuran Balakrishnan">Vithuran Balakrishnan</option>
+        <option value="Jenagan kanagasabapathy">Jenagan kanagasabapathy</option>
+        <option value="Arun Bala">Arun Bala</option>
+        <option value="Rion Ockersz">Rion Ockersz</option>
+        <option value="Sinth Dons">Sinth Dons</option>
+        <option value="Kaneeshkumar Selvasothy">Kaneeshkumar Selvasothy</option>
+        <option value="Rasakkon sujiv">Rasakkon sujiv</option>
+        <option value="Sudarshan Mahendrarajah">Sudarshan Mahendrarajah</option>
         <option value="Gobi Annan">Gobi Annan</option>
         <option value="Vaishnavan Selvam">Vaishnavan Selvam</option>
+        <option value="Logesan Shandralingam">Logesan Shandralingam</option>
+        <option value="Mayuran Sivamoorthy">Mayuran Sivamoorthy</option>
+        <option value="Pradeep">Pradeep</option>
       </select>
       <button type="submit" style="background:#1565c0;color:#fff;border:none;border-radius:6px;padding:0.7rem 1.5rem;font-size:1rem;font-weight:bold;cursor:pointer;">Create User</button>
       <button type="button" id="close-modal" style="background:#fff;color:#1565c0;border:1px solid #1565c0;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Cancel</button>
@@ -78,6 +78,26 @@
   <script src="supabaseClient.js"></script>
   <script src="login.js"></script>
   <script>
+    // Always show Go Back button on the login page
+    const goBackBtn = document.createElement('button');
+    goBackBtn.textContent = 'Go Back';
+    goBackBtn.style.background = '#1565c0';
+    goBackBtn.style.color = '#fff';
+    goBackBtn.style.border = 'none';
+    goBackBtn.style.borderRadius = '6px';
+    goBackBtn.style.padding = '0.5rem 1.2rem';
+    goBackBtn.style.fontWeight = 'bold';
+    goBackBtn.style.cursor = 'pointer';
+    goBackBtn.style.margin = '1.5em auto 0 auto';
+    goBackBtn.style.display = 'block';
+    goBackBtn.onclick = function() {
+      if (document.referrer && document.referrer !== window.location.href) {
+        window.history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
+    };
+    document.body.appendChild(goBackBtn);
     // Login/Logout button logic
     function isLoggedIn() {
       return localStorage.getItem('role') === 'admin' || localStorage.getItem('role') === 'player';
@@ -98,6 +118,126 @@
       }
     }
     updateLoginBtn();
+    // Show Edit User Info button after login (also after successful login)
+    function showEditUserBtn() {
+      if (document.getElementById('edit-user-btn')) return;
+      if (isLoggedIn()) {
+        const editUserBtn = document.createElement('button');
+        editUserBtn.id = 'edit-user-btn';
+        editUserBtn.textContent = 'Edit User Info';
+        editUserBtn.style.background = '#1565c0';
+        editUserBtn.style.color = '#fff';
+        editUserBtn.style.border = 'none';
+        editUserBtn.style.borderRadius = '6px';
+        editUserBtn.style.padding = '0.5rem 1.2rem';
+        editUserBtn.style.fontWeight = 'bold';
+        editUserBtn.style.cursor = 'pointer';
+        editUserBtn.style.margin = '1.5em auto 0 auto';
+        editUserBtn.style.display = 'block';
+        editUserBtn.onclick = function() {
+          // Show popup for changing password
+          const modal = document.createElement('div');
+          modal.style.position = 'fixed';
+          modal.style.top = '0';
+          modal.style.left = '0';
+          modal.style.width = '100vw';
+          modal.style.height = '100vh';
+          modal.style.background = 'rgba(0,0,0,0.4)';
+          modal.style.display = 'flex';
+          modal.style.alignItems = 'center';
+          modal.style.justifyContent = 'center';
+          modal.style.zIndex = '1000';
+          const form = document.createElement('form');
+          form.style.background = '#fff';
+          form.style.padding = '2em 1.5em';
+          form.style.borderRadius = '12px';
+          form.style.minWidth = '320px';
+          form.style.maxWidth = '90vw';
+          form.style.boxShadow = '0 4px 24px rgba(21,101,192,0.18)';
+          form.innerHTML = '<h3>Edit User Info</h3>';
+          const passLabel = document.createElement('label');
+          passLabel.textContent = 'New Password:';
+          passLabel.style.display = 'block';
+          passLabel.style.marginBottom = '0.5em';
+          const passInput = document.createElement('input');
+          passInput.type = 'password';
+          passInput.required = true;
+          passInput.style.width = '100%';
+          passInput.style.marginBottom = '1em';
+          form.appendChild(passLabel);
+          form.appendChild(passInput);
+          const saveBtn = document.createElement('button');
+          saveBtn.type = 'submit';
+          saveBtn.textContent = 'Save';
+          saveBtn.style.background = '#1565c0';
+          saveBtn.style.color = '#fff';
+          saveBtn.style.border = 'none';
+          saveBtn.style.borderRadius = '6px';
+          saveBtn.style.padding = '0.5rem 1.2rem';
+          saveBtn.style.fontWeight = 'bold';
+          saveBtn.style.cursor = 'pointer';
+          saveBtn.style.marginRight = '1em';
+          form.appendChild(saveBtn);
+          const cancelBtn = document.createElement('button');
+          cancelBtn.type = 'button';
+          cancelBtn.textContent = 'Cancel';
+          cancelBtn.style.background = '#fff';
+          cancelBtn.style.color = '#1565c0';
+          cancelBtn.style.border = '1px solid #1565c0';
+          cancelBtn.style.borderRadius = '6px';
+          cancelBtn.style.padding = '0.5rem 1.2rem';
+          cancelBtn.style.fontWeight = 'bold';
+          cancelBtn.style.cursor = 'pointer';
+          cancelBtn.onclick = function(e) {
+            e.preventDefault();
+            modal.remove();
+          };
+          form.appendChild(cancelBtn);
+          form.onsubmit = async function(e) {
+            e.preventDefault();
+            const newPassword = passInput.value.trim();
+            if (!newPassword) {
+              alert('Password cannot be empty!');
+              return;
+            }
+            // Update password in Supabase (call updateUserPassword)
+            try {
+              await updateUserPassword(newPassword);
+              alert('Password updated!');
+              modal.remove();
+            } catch (err) {
+              alert('Failed to update password.');
+            }
+          };
+          modal.appendChild(form);
+          document.body.appendChild(modal);
+        };
+        document.body.appendChild(editUserBtn);
+      }
+    }
+    // Call on page load
+    showEditUserBtn();
+    // Also call after successful login
+    window.showEditUserBtn = showEditUserBtn;
+    // Helper: update user password in Supabase
+    async function updateUserPassword(newPassword) {
+      // Fetch users, find current user, and update password
+      const username = document.getElementById('username').value.trim() || localStorage.getItem('player') || localStorage.getItem('role');
+      let users = [];
+      try {
+        users = await getUsers();
+      } catch (err) {
+        throw new Error('Could not fetch users');
+      }
+      const user = users.find(u => u.username === username || u.player === username);
+      if (!user) throw new Error('User not found');
+      // Update password in Supabase
+      const { error } = await window._supabase
+        .from('users')
+        .update({ password: newPassword })
+        .eq('id', user.id);
+      if (error) throw error;
+    }
   </script>
 </body>
 </html>

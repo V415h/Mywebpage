@@ -105,9 +105,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // --- Player Availability Logic ---
   const availabilityTable = 'tournament_availability';
   const playerList = [
-    'Santhuru Sivamoorthy', 'Vithuran', 'Jenagan', 'Arun', 'Rion Ockers',
-    'Logesan Shandralingam', 'Mayuran Sivamoorthy', 'Don Sinthu', 'Kanesh',
-    'Pradeep', 'Rasa Suji', 'Sudarshan', 'Gobi Annan', 'Vaishnavan Selvam'
+    'Santhuru Sivamoorthy', 'Vithuran Balakrishnan', 'Jenagan kanagasabapathy', 'Arun Bala', 'Rion Ockersz',
+    'Logesan Shandralingam', 'Mayuran Sivamoorthy', 'Sinth Dons', 'Kaneeshkumar Selvasothy',
+    'Pradeep', 'Rasakkon sujiv', 'Sudarshan Mahendrarajah', 'Gobi Annan', 'Vaishnavan Selvam'
   ];
 
   function clearTournamentCards() {
