@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - Mokku Squad</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .contact-container {
+      max-width: 420px;
+      margin: 3rem auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(21,101,192,0.08);
+      padding: 2rem 1.5rem;
+    }
+    .contact-container h2 {
+      color: #1565c0;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .contact-container label {
+      font-weight: 500;
+      margin-bottom: 0.3em;
+      display: block;
+    }
+    .contact-container input, .contact-container textarea {
+      width: 100%;
+      padding: 0.5em;
+      border-radius: 6px;
+      border: 1px solid #b3c6e0;
+      margin-bottom: 1em;
+      font-size: 1em;
+    }
+    .contact-container button {
+      background: #1565c0;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 0.5em;
+    }
+    .contact-container button:hover {
+      background: #003c8f;
+    }
+    .contact-success {
+      color: green;
+      text-align: center;
+      margin-top: 1em;
+    }
+    .contact-error {
+      color: red;
+      text-align: center;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <a href="index.html"><img src="assets/logo.png" alt="Team Logo" height="48"></a>
+    </div>
+    <nav style="display:flex;align-items:center;gap:1rem;">      <select class="nav-dropdown" onchange="location = this.value;">
+        <option value="index.html">Home</option>
+        <option value="events.html">Events</option>
+        <option value="tournaments.html">Tournaments</option>
+        <option value="players.html">Players</option>
+        <option value="workout-guide.html">Workout Guide</option>
+        <option value="nutrition.html">Nutrition</option>
+        <option value="drive-files.html">Team Files</option>
+      </select>
+    </nav>
+  </header>
+  <main>
+    <div style="height:300px;"></div>
+    <div class="contact-container">
+      <h2>Contact Us</h2>
+      <form id="contact-form" autocomplete="off">
+        <label for="contact-name">Name</label>
+        <input type="text" id="contact-name" name="name" required>
+        <label for="contact-email">Email</label>
+        <input type="email" id="contact-email" name="email" required>
+        <label for="contact-phone">Phone Number (optional)</label>
+        <input type="tel" id="contact-phone" name="phone">
+        <label for="contact-message">Message</label>
+        <textarea id="contact-message" name="message" rows="4" required></textarea>
+        <button type="submit">Send</button>
+      </form>
+      <div id="contact-msg"></div>
+    </div>
+  </main>
+  <script>
+    document.getElementById('contact-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('contact-name').value.trim();
+      const email = document.getElementById('contact-email').value.trim();
+      const phone = document.getElementById('contact-phone').value.trim();
+      const message = document.getElementById('contact-message').value.trim();
+      const msgDiv = document.getElementById('contact-msg');
+      msgDiv.textContent = '';
+      msgDiv.className = '';
+      if (!name || !email || !message) {
+        msgDiv.textContent = 'Please fill in all required fields.';
+        msgDiv.className = 'contact-error';
+        return;
+      }
+      // Use Formspree for email sending (no backend required)
+      try {
+        const res = await fetch('https://formspree.io/f/mvgrbgrv', {
+          method: 'POST',
+          headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name, email, phone, message,
+            _subject: 'Mokku Squad Contact Form',
+            _replyto: email
+          })
+        });
+        if (res.ok) {
+          msgDiv.textContent = 'Message sent successfully!';
+          msgDiv.className = 'contact-success';
+          document.getElementById('contact-form').reset();
+        } else {
+          msgDiv.textContent = 'Failed to send message. Please try again later.';
+          msgDiv.className = 'contact-error';
+        }
+      } catch {
+        msgDiv.textContent = 'Failed to send message. Please try again later.';
+        msgDiv.className = 'contact-error';
+      }
+    };
+  </script>
+</body>
+</html>

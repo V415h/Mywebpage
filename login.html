@@ -11,14 +11,14 @@
     <div class="logo">
       <a href="index.html"><img src="assets/logo.png" alt="Team Logo" height="48"></a>
     </div>
-    <nav style="display:flex;align-items:center;gap:1rem;">
-      <select class="nav-dropdown" onchange="location = this.value;">
+    <nav style="display:flex;align-items:center;gap:1rem;">      <select class="nav-dropdown" onchange="location = this.value;">
         <option value="index.html">Home</option>
         <option value="events.html">Events</option>
         <option value="tournaments.html">Tournaments</option>
         <option value="players.html">Players</option>
         <option value="workout-guide.html">Workout Guide</option>
         <option value="nutrition.html">Nutrition</option>
+        <option value="drive-files.html">Team Files</option>
       </select>
       <button id="login-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;" disabled>Login</button>
       <!-- Add this after the Login button inside your form -->
@@ -91,12 +91,16 @@
     goBackBtn.style.margin = '1.5em auto 0 auto';
     goBackBtn.style.display = 'block';
     goBackBtn.onclick = function() {
-      if (document.referrer && document.referrer !== window.location.href) {
-        window.history.back();
-      } else {
-        window.location.href = 'index.html';
-      }
-    };
+  // Prefer sessionStorage prevPage if set, else use referrer, else home
+  const prevPage = sessionStorage.getItem('prevPage');
+  if (prevPage && prevPage !== window.location.pathname.split('/').pop()) {
+    window.location.href = prevPage;
+  } else if (document.referrer && document.referrer !== window.location.href) {
+    window.history.back();
+  } else {
+    window.location.href = 'index.html';
+  }
+};
     document.body.appendChild(goBackBtn);
     // Login/Logout button logic
     function isLoggedIn() {

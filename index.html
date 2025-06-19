@@ -11,8 +11,7 @@
   <header class="navbar">
     <div class="logo">
       <a href="index.html"><img src="assets/logo.png" alt="Team Logo" height="48"></a>
-    </div>
-    <nav style="display:flex;align-items:center;gap:1rem;">
+    </div>    <nav style="display:flex;align-items:center;gap:1rem;">
       <select class="nav-dropdown" onchange="location = this.value;">
         <option value="index.html">Home</option>
         <option value="events.html">Events</option>
@@ -20,6 +19,7 @@
         <option value="players.html">Players</option>
         <option value="workout-guide.html">Workout Guide</option>
         <option value="nutrition.html">Nutrition</option>
+        <option value="drive-files.html">Team Files</option>
       </select>
       <button id="login-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Login</button>
     </nav>
@@ -46,10 +46,17 @@
       </ul>
     </div>
   </main>
+  <div style="display:flex;justify-content:center;margin:2.5rem 0 1.5rem 0;">
+    <button id="contact-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Contact Us</button>
+  </div>
   <script src="supabaseClient.js"></script>
   <script src="events-preview.js"></script>
   <script src="tournaments-preview.js"></script>
   <script>
+    // Contact Us button logic
+    document.getElementById('contact-btn').onclick = function() {
+      window.location.href = 'contact.html';
+    };
     // Login/Logout button logic
     function isLoggedIn() {
       return localStorage.getItem('role') === 'admin' || localStorage.getItem('role') === 'player';

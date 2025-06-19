@@ -22,7 +22,10 @@ form.addEventListener('submit', async function(e) {
     loginMsg.style.color = 'red';
     return;
   }
-  const user = users.find(u => u.username === username && u.password === password);
+  const user = users.find(u =>
+    u.username.toLowerCase() === username.toLowerCase() &&
+    u.password === password
+  );
   if (!user) {
     loginMsg.textContent = 'Invalid username or password!';
     loginMsg.style.color = 'red';

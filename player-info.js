@@ -59,6 +59,15 @@ function renderCareerForm(data, editable) {
     saveBtn.onclick = saveCareerDetails;
     careerDetailsDiv.appendChild(saveBtn);
   }
+  // Add a message area under career details
+  let careerMsg = document.getElementById('career-msg');
+  if (!careerMsg) {
+    careerMsg = document.createElement('div');
+    careerMsg.id = 'career-msg';
+    careerMsg.style.marginTop = '1em';
+    careerMsg.style.textAlign = 'center';
+    document.getElementById('career-details').appendChild(careerMsg);
+  }
 }
 
 async function loadCareerDetails() {
@@ -89,6 +98,14 @@ function isAdmin() {
 
 async function saveCareerDetails() {
   const supabase = window._supabase;
+  let careerMsg = document.getElementById('career-msg');
+  if (!careerMsg) {
+    careerMsg = document.createElement('div');
+    careerMsg.id = 'career-msg';
+    careerMsg.style.marginTop = '1em';
+    careerMsg.style.textAlign = 'center';
+    document.getElementById('career-details').appendChild(careerMsg);
+  }
   const values = {
     player_name: playerName,
     age: parseInt(document.getElementById('career-age').value) || null,
@@ -103,10 +120,18 @@ async function saveCareerDetails() {
     .from('player_career')
     .upsert([values], { onConflict: 'player_name' });
   if (!error) {
-    alert('Career details saved!');
+    careerMsg.textContent = 'Done!';
+    careerMsg.style.color = 'green';
+    setTimeout(() => {
+      careerMsg.textContent = '';
+    }, 2000);
     loadCareerDetails();
   } else {
-    alert('Error saving: ' + error.message);
+    careerMsg.textContent = 'Error saving: ' + error.message;
+    careerMsg.style.color = 'red';
+    setTimeout(() => {
+      careerMsg.textContent = '';
+    }, 2000);
   }
 }
 

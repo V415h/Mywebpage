@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Files - Mokku Squad</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .files-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    
+    .files-header {
+      background: linear-gradient(135deg, #1565c0, #0d47a1);
+      color: white;
+      padding: 2rem;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    .files-header h1 {
+      margin: 0 0 0.5rem 0;
+      font-size: 2.5rem;
+      font-weight: 300;
+    }
+    
+    .files-header p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+    
+    .search-bar {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 12px rgba(21,101,192,0.1);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .search-bar input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      padding: 0.5rem;
+    }
+    
+    .search-bar i {
+      color: #666;
+    }
+    
+    .view-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .view-toggle {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .view-btn {
+      background: #f5f5f5;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .view-btn.active {
+      background: #1565c0;
+      color: white;
+    }
+    
+    .sort-select {
+      padding: 0.5rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+    }
+    
+    .files-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .files-list {
+      display: none;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(21,101,192,0.1);
+    }
+    
+    .file-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(21,101,192,0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .file-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(21,101,192,0.15);
+    }
+    
+    .file-icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 1rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      font-size: 2rem;
+      color: white;
+    }
+    
+    .file-icon.folder { background: #ff9800; }
+    .file-icon.image { background: #4caf50; }
+    .file-icon.document { background: #2196f3; }
+    .file-icon.video { background: #f44336; }
+    .file-icon.audio { background: #9c27b0; }
+    .file-icon.archive { background: #795548; }
+    .file-icon.other { background: #607d8b; }
+    
+    .file-name {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .file-meta {
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 1rem;
+    }
+    
+    .file-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .action-btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+    }
+    
+    .action-btn.preview {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+    
+    .action-btn.download {
+      background: #e8f5e8;
+      color: #2e7d32;
+    }
+    
+    .action-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(21,101,192,0.1);
+    }
+    
+    .breadcrumb-item {
+      color: #666;
+      text-decoration: none;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+    
+    .breadcrumb-item:hover {
+      background: #f5f5f5;
+    }
+    
+    .breadcrumb-item.active {
+      color: #1565c0;
+      font-weight: 600;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+    
+    .loading i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .preview-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 1000;
+      padding: 2rem;
+      box-sizing: border-box;
+    }
+    
+    .preview-content {
+      background: white;
+      border-radius: 12px;
+      max-width: 90%;
+      max-height: 90%;
+      margin: auto;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .preview-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .preview-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #666;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background 0.3s ease;
+    }
+    
+    .preview-close:hover {
+      background: #f5f5f5;
+    }
+    
+    .preview-body {
+      flex: 1;
+      padding: 1.5rem;
+      overflow: auto;
+    }
+    
+    .error-message {
+      text-align: center;
+      padding: 2rem;
+      color: #f44336;
+      background: #ffebee;
+      border-radius: 12px;
+      margin: 1rem 0;
+    }
+    
+    .auth-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(21,101,192,0.1);
+      margin-bottom: 2rem;
+    }
+    
+    .auth-btn {
+      background: #1565c0;
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    .auth-btn:hover {
+      background: #0d47a1;
+    }
+    
+    @media (max-width: 768px) {
+      .files-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .view-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .files-header h1 {
+        font-size: 2rem;
+      }
+      
+      .preview-modal {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <a href="index.html"><img src="assets/logo.png" alt="Team Logo" height="48"></a>
+    </div>
+    <nav style="display:flex;align-items:center;gap:1rem;">
+      <select class="nav-dropdown" onchange="location = this.value;">
+        <option value="index.html">Home</option>
+        <option value="events.html">Events</option>
+        <option value="tournaments.html">Tournaments</option>
+        <option value="players.html">Players</option>
+        <option value="workout-guide.html">Workout Guide</option>
+        <option value="nutrition.html">Nutrition</option>
+        <option value="drive-files.html" selected>Team Files</option>
+      </select>
+      <button id="login-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Login</button>
+    </nav>
+  </header>
+
+  <main class="files-container">
+    <div class="files-header">
+      <h1><i class="fas fa-cloud"></i> Team Files</h1>
+      <p>Access and download team documents, photos, and resources</p>
+    </div>
+
+    <div id="auth-section" class="auth-section">
+      <h3>Connect to Google Drive</h3>
+      <p>Sign in with Google to access team files</p>
+      <button id="auth-btn" class="auth-btn">
+        <i class="fab fa-google"></i> Sign in with Google
+      </button>
+    </div>
+
+    <div id="files-section" style="display: none;">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search-input" placeholder="Search files and folders...">
+      </div>
+
+      <div class="breadcrumb" id="breadcrumb">
+        <a href="#" class="breadcrumb-item active" data-folder-id="root">
+          <i class="fas fa-home"></i> Team Drive
+        </a>
+      </div>
+
+      <div class="view-controls">
+        <div class="view-toggle">
+          <button class="view-btn active" data-view="grid">
+            <i class="fas fa-th"></i> Grid
+          </button>
+          <button class="view-btn" data-view="list">
+            <i class="fas fa-list"></i> List
+          </button>
+        </div>
+        <select class="sort-select" id="sort-select">
+          <option value="name">Sort by Name</option>
+          <option value="modified">Sort by Modified</option>
+          <option value="size">Sort by Size</option>
+          <option value="type">Sort by Type</option>
+        </select>
+      </div>
+
+      <div id="loading" class="loading" style="display: none;">
+        <i class="fas fa-spinner"></i>
+        <p>Loading files...</p>
+      </div>
+
+      <div id="error-message" class="error-message" style="display: none;"></div>
+
+      <div id="files-grid" class="files-grid"></div>
+      <div id="files-list" class="files-list"></div>
+    </div>
+  </main>
+
+  <!-- Preview Modal -->
+  <div id="preview-modal" class="preview-modal">
+    <div class="preview-content">
+      <div class="preview-header">
+        <h3 id="preview-title">File Preview</h3>
+        <button class="preview-close" onclick="closePreview()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="preview-body" id="preview-body">
+        <!-- Preview content will be loaded here -->
+      </div>
+    </div>
+  </div>
+  <script>
+    // Google Drive API configuration
+    const API_KEY = 'AIzaSyAe2NzkktrbpI6SoX-4cG_DEw14A0fER8Q'; // Replace with your API key
+    const CLIENT_ID = '924540463226-mndoh00ev73n9fgdgvnppq5qehmsbgme.apps.googleusercontent.com'; // Replace with your client ID
+    const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
+    const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
+    
+    // Replace with your specific folder ID
+    const TEAM_FOLDER_ID = '1K7ScjlQ0spVPugt0_BH7g2oCwNeO55Go';
+    
+    let gapiLoaded = false;
+    let authInstance = null;
+    let currentFolderId = TEAM_FOLDER_ID;
+    let currentView = 'grid';
+    let allFiles = [];
+    let folderPath = [];
+
+    // Load Google API script dynamically
+    function loadGoogleAPI() {
+      return new Promise((resolve, reject) => {
+        if (typeof gapi !== 'undefined') {
+          resolve();
+          return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = 'https://apis.google.com/js/api.js';
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Failed to load Google API'));
+        document.head.appendChild(script);
+      });
+    }    // Initialize the API
+    async function initializeGapi() {
+      try {
+        // Check if we're running on file:// protocol
+        if (window.location.protocol === 'file:') {
+          showError('Google Drive integration requires a web server. Please serve this page through HTTP (localhost) instead of opening the file directly. See the console for instructions.');
+          console.error('SETUP REQUIRED:');
+          console.error('1. Install Python and run: python -m http.server 8000');
+          console.error('2. Or install Node.js and run: npx http-server');
+          console.error('3. Then access: http://localhost:8000/drive-files.html');
+          return;
+        }
+
+        await loadGoogleAPI();
+        
+        await new Promise((resolve) => {
+          gapi.load('client:auth2', resolve);
+        });
+
+        await gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          discoveryDocs: [DISCOVERY_DOC],
+          scope: SCOPES,
+          cookiepolicy: 'single_host_origin'
+        });
+
+        authInstance = gapi.auth2.getAuthInstance();
+        gapiLoaded = true;
+        
+        // Check if user is already signed in
+        if (authInstance.isSignedIn.get()) {
+          document.getElementById('auth-section').style.display = 'none';
+          document.getElementById('files-section').style.display = 'block';
+          loadFiles(currentFolderId);
+        }
+      } catch (error) {
+        console.error('Error initializing Google API:', error);
+        if (error.message && error.message.includes('cookiePolicy')) {
+          showError('Google Drive API requires proper domain configuration. Please run this page on a web server (localhost) instead of opening the file directly.');
+        } else {
+          showError('Failed to initialize Google Drive API. Please check your API configuration and try again.');
+        }
+      }
+    }
+
+    // Authentication
+    function handleAuthClick() {
+      if (!gapiLoaded || !authInstance) {
+        showError('Google API not loaded yet. Please wait and try again.');
+        return;
+      }
+
+      authInstance.signIn().then(() => {
+        document.getElementById('auth-section').style.display = 'none';
+        document.getElementById('files-section').style.display = 'block';
+        loadFiles(currentFolderId);
+      }).catch(error => {
+        console.error('Sign-in error:', error);
+        showError('Failed to sign in. Please try again.');
+      });
+    }    // Load files from Google Drive
+    async function loadFiles(folderId = TEAM_FOLDER_ID) {
+      if (!gapiLoaded) {
+        showError('Google API not loaded yet. Please try again.');
+        return;
+      }
+
+      showLoading(true);
+      hideError();
+      
+      try {
+        const response = await gapi.client.drive.files.list({
+          q: `'${folderId}' in parents and trashed=false`,
+          fields: 'files(id,name,mimeType,size,modifiedTime,webViewLink,webContentLink,thumbnailLink)',
+          orderBy: 'folder,name'
+        });
+
+        allFiles = response.result.files || [];
+        displayFiles(allFiles);
+        showLoading(false);
+      } catch (error) {
+        console.error('Error loading files:', error);
+        showError('Failed to load files. Please check your permissions and try again.');
+        showLoading(false);
+      }
+    }
+
+    // Display files in the UI
+    function displayFiles(files) {
+      const gridContainer = document.getElementById('files-grid');
+      const listContainer = document.getElementById('files-list');
+      
+      gridContainer.innerHTML = '';
+      listContainer.innerHTML = '';
+
+      if (files.length === 0) {
+        gridContainer.innerHTML = '<div class="error-message">No files found in this folder.</div>';
+        return;
+      }
+
+      files.forEach(file => {
+        if (currentView === 'grid') {
+          gridContainer.appendChild(createFileCard(file));
+        } else {
+          listContainer.appendChild(createFileListItem(file));
+        }
+      });
+    }
+
+    // Create file card for grid view
+    function createFileCard(file) {
+      const card = document.createElement('div');
+      card.className = 'file-card';
+      
+      const fileType = getFileType(file.mimeType);
+      const fileSize = file.size ? formatFileSize(file.size) : '';
+      const modifiedDate = new Date(file.modifiedTime).toLocaleDateString();
+
+      card.innerHTML = `
+        <div class="file-icon ${fileType}">
+          <i class="${getFileIcon(file.mimeType)}"></i>
+        </div>
+        <div class="file-name" title="${file.name}">${file.name}</div>
+        <div class="file-meta">
+          ${fileSize ? `${fileSize} • ` : ''}${modifiedDate}
+        </div>
+        <div class="file-actions">
+          ${file.mimeType === 'application/vnd.google-apps.folder' ? 
+            `<button class="action-btn preview" onclick="openFolder('${file.id}', '${file.name}')">
+              <i class="fas fa-folder-open"></i> Open
+            </button>` :
+            `<button class="action-btn preview" onclick="previewFile('${file.id}', '${file.name}', '${file.mimeType}')">
+              <i class="fas fa-eye"></i> Preview
+            </button>
+            <button class="action-btn download" onclick="downloadFile('${file.webContentLink || file.webViewLink}', '${file.name}')">
+              <i class="fas fa-download"></i> Download
+            </button>`
+          }
+        </div>
+      `;
+
+      return card;
+    }
+
+    // Create file list item for list view
+    function createFileListItem(file) {
+      const item = document.createElement('div');
+      item.className = 'file-list-item';
+      // Implementation for list view...
+      return item;
+    }
+
+    // Get file type based on MIME type
+    function getFileType(mimeType) {
+      if (mimeType === 'application/vnd.google-apps.folder') return 'folder';
+      if (mimeType.startsWith('image/')) return 'image';
+      if (mimeType.startsWith('video/')) return 'video';
+      if (mimeType.startsWith('audio/')) return 'audio';
+      if (mimeType.includes('document') || mimeType.includes('text') || mimeType.includes('pdf')) return 'document';
+      if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('tar')) return 'archive';
+      return 'other';
+    }
+
+    // Get file icon based on MIME type
+    function getFileIcon(mimeType) {
+      if (mimeType === 'application/vnd.google-apps.folder') return 'fas fa-folder';
+      if (mimeType.startsWith('image/')) return 'fas fa-image';
+      if (mimeType.startsWith('video/')) return 'fas fa-video';
+      if (mimeType.startsWith('audio/')) return 'fas fa-music';
+      if (mimeType.includes('pdf')) return 'fas fa-file-pdf';
+      if (mimeType.includes('document') || mimeType.includes('text')) return 'fas fa-file-alt';
+      if (mimeType.includes('spreadsheet')) return 'fas fa-file-excel';
+      if (mimeType.includes('presentation')) return 'fas fa-file-powerpoint';
+      if (mimeType.includes('zip') || mimeType.includes('rar')) return 'fas fa-file-archive';
+      return 'fas fa-file';
+    }
+
+    // Format file size
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Open folder
+    function openFolder(folderId, folderName) {
+      folderPath.push({ id: folderId, name: folderName });
+      currentFolderId = folderId;
+      updateBreadcrumb();
+      loadFiles(folderId);
+    }
+
+    // Update breadcrumb navigation
+    function updateBreadcrumb() {
+      const breadcrumb = document.getElementById('breadcrumb');
+      breadcrumb.innerHTML = `
+        <a href="#" class="breadcrumb-item" onclick="navigateToFolder('${TEAM_FOLDER_ID}', 0)">
+          <i class="fas fa-home"></i> Team Drive
+        </a>
+      `;
+
+      folderPath.forEach((folder, index) => {
+        breadcrumb.innerHTML += `
+          <i class="fas fa-chevron-right" style="color: #ccc;"></i>
+          <a href="#" class="breadcrumb-item ${index === folderPath.length - 1 ? 'active' : ''}" 
+             onclick="navigateToFolder('${folder.id}', ${index + 1})">
+            ${folder.name}
+          </a>
+        `;
+      });
+    }
+
+    // Navigate to folder
+    function navigateToFolder(folderId, pathIndex) {
+      folderPath = folderPath.slice(0, pathIndex);
+      currentFolderId = folderId;
+      updateBreadcrumb();
+      loadFiles(folderId);
+    }
+
+    // Preview file
+    function previewFile(fileId, fileName, mimeType) {
+      document.getElementById('preview-title').textContent = fileName;
+      const previewBody = document.getElementById('preview-body');
+      
+      if (mimeType.startsWith('image/')) {
+        previewBody.innerHTML = `<img src="https://drive.google.com/uc?id=${fileId}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
+      } else if (mimeType.includes('pdf')) {
+        previewBody.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview" style="width: 100%; height: 500px; border: none;"></iframe>`;
+      } else if (mimeType.startsWith('text/') || mimeType.includes('document')) {
+        previewBody.innerHTML = `<iframe src="https://docs.google.com/viewer?srcid=${fileId}&pid=explorer&efh=false&a=v&chrome=false&embedded=true" style="width: 100%; height: 500px; border: none;"></iframe>`;
+      } else {
+        previewBody.innerHTML = `
+          <div style="text-align: center; padding: 2rem;">
+            <i class="fas fa-file" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
+            <p>Preview not available for this file type.</p>
+            <button class="action-btn download" onclick="window.open('https://drive.google.com/file/d/${fileId}/view', '_blank')">
+              <i class="fas fa-external-link-alt"></i> Open in Google Drive
+            </button>
+          </div>
+        `;
+      }
+      
+      document.getElementById('preview-modal').style.display = 'flex';
+    }
+
+    // Close preview
+    function closePreview() {
+      document.getElementById('preview-modal').style.display = 'none';
+    }
+
+    // Download file
+    function downloadFile(downloadUrl, fileName) {
+      if (downloadUrl) {
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = fileName;
+        link.click();
+      } else {
+        alert('Download not available for this file type.');
+      }
+    }
+
+    // Search functionality
+    function filterFiles() {
+      const searchTerm = document.getElementById('search-input').value.toLowerCase();
+      const filteredFiles = allFiles.filter(file => 
+        file.name.toLowerCase().includes(searchTerm)
+      );
+      displayFiles(filteredFiles);
+    }
+
+    // Sort functionality
+    function sortFiles() {
+      const sortBy = document.getElementById('sort-select').value;
+      const sortedFiles = [...allFiles].sort((a, b) => {
+        switch (sortBy) {
+          case 'name':
+            return a.name.localeCompare(b.name);
+          case 'modified':
+            return new Date(b.modifiedTime) - new Date(a.modifiedTime);
+          case 'size':
+            return (b.size || 0) - (a.size || 0);
+          case 'type':
+            return a.mimeType.localeCompare(b.mimeType);
+          default:
+            return 0;
+        }
+      });
+      displayFiles(sortedFiles);
+    }
+
+    // View toggle
+    function toggleView(view) {
+      currentView = view;
+      document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`[data-view="${view}"]`).classList.add('active');
+      
+      if (view === 'grid') {
+        document.getElementById('files-grid').style.display = 'grid';
+        document.getElementById('files-list').style.display = 'none';
+      } else {
+        document.getElementById('files-grid').style.display = 'none';
+        document.getElementById('files-list').style.display = 'block';
+      }
+      
+      displayFiles(allFiles);
+    }
+
+    // Utility functions
+    function showLoading(show) {
+      document.getElementById('loading').style.display = show ? 'block' : 'none';
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('error-message');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('error-message').style.display = 'none';
+    }    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize Google API
+      initializeGapi().catch(error => {
+        console.error('Failed to initialize Google API:', error);
+        showError('Failed to load Google Drive integration. Please refresh the page.');
+      });
+      
+      // Auth button
+      document.getElementById('auth-btn').addEventListener('click', handleAuthClick);
+      
+      // Search
+      document.getElementById('search-input').addEventListener('input', filterFiles);
+      
+      // Sort
+      document.getElementById('sort-select').addEventListener('change', sortFiles);
+      
+      // View toggle
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => toggleView(btn.dataset.view));
+      });
+      
+      // Close modal on outside click
+      document.getElementById('preview-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closePreview();
+        }
+      });
+
+      // Login/Logout button logic (matching other pages)
+      function isLoggedIn() {
+        return localStorage.getItem('role') === 'admin' || localStorage.getItem('role') === 'player';
+      }
+      const loginBtn = document.getElementById('login-btn');
+      function updateLoginBtn() {
+        if (isLoggedIn()) {
+          loginBtn.textContent = 'Log out';
+          loginBtn.onclick = function() {
+            localStorage.removeItem('role');
+            location.reload();
+          };
+        } else {
+          loginBtn.textContent = 'Login';
+          loginBtn.onclick = function() {
+            sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'drive-files.html');
+            window.location.href = 'login.html';
+          };
+        }
+      }
+      updateLoginBtn();
+    });
+  </script>
+</body>
+</html>

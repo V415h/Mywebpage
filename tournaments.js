@@ -297,4 +297,14 @@ document.addEventListener('DOMContentLoaded', function() {
     updateRoleUI();
     loadTournaments();
   });
+
+  // Re-run updateRoleUI and re-render checkboxes on page show (when coming back from login)
+  window.addEventListener('pageshow', function(event) {
+    // Only reload if this is a persisted page (back/forward cache)
+    if (event.persisted) {
+      tournamentCardsContainer.innerHTML = '';
+      loadTournaments();
+      updateRoleUI();
+    }
+  });
 });
