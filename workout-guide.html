@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workout Guide</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .workout-guide-container {
+      max-width: 900px;
+      margin: 3rem auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(21,101,192,0.10);
+      padding: 2.5rem 2rem;
+    }
+    .workout-guide-title {
+      text-align: center;
+      color: #1565c0;
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 2rem;
+    }
+    .muscle-group {
+      margin-bottom: 2.5rem;
+    }
+    .muscle-group h2 {
+      color: #a259f7;
+      font-size: 1.7rem;
+      margin-bottom: 0.7rem;
+    }
+    .workout-list {
+      margin-left: 1.5rem;
+      margin-bottom: 0.7rem;
+    }
+    .workout-list li {
+      margin-bottom: 0.5em;
+      font-size: 1.1em;
+    }
+    .workout-desc {
+      color: #444;
+      font-size: 1em;
+      margin-bottom: 1.2em;
+    }
+    .how-to {
+      background: #eaf1fb;
+      border-left: 4px solid #1565c0;
+      padding: 1em 1.2em;
+      border-radius: 8px;
+      margin-bottom: 1.5em;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <a href="index.html"><img src="assets/logo.png" alt="Team Logo" height="48"></a>
+    </div>
+    <nav style="display:flex;align-items:center;gap:1rem;">
+      <select class="nav-dropdown" onchange="location = this.value;">
+        <option value="index.html">Home</option>
+        <option value="events.html">Events</option>
+        <option value="tournaments.html">Tournaments</option>
+        <option value="players.html">Players</option>
+        <option value="workout-guide.html" selected>Workout Guide</option>
+        <option value="nutrition.html">Nutrition</option>
+      </select>
+      <button id="login-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Login</button>
+    </nav>
+  </header>
+  <main>
+    <div class="workout-guide-container">
+      <div class="workout-guide-title">Workout Guide: Best Exercises for Each Muscle Group</div>
+      <div class="muscle-group">
+        <h2>Chest</h2>
+        <ul class="workout-list">
+          <li><b>Bench Press</b> <span class="workout-desc">- Classic compound movement for overall chest mass and strength.</span>
+            <div class="how-to"><b>How to:</b> Keep your feet flat, back arched, and lower the bar to mid-chest. Press up explosively.<br><b>Safety:</b> Always use a spotter or safety bars. Keep wrists straight and avoid bouncing the bar off your chest.</div>
+          </li>
+          <li><b>Incline Dumbbell Press</b> <span class="workout-desc">- Targets upper chest and shoulders.</span>
+            <div class="how-to"><b>How to:</b> Set bench to 30-45°. Lower dumbbells to chest, press up and together.<br><b>Safety:</b> Use a weight you can control. Keep shoulders retracted and avoid overextending elbows.</div>
+          </li>
+          <li><b>Push Ups</b> <span class="workout-desc">- Great bodyweight exercise for chest and triceps.</span>
+            <div class="how-to"><b>How to:</b> Hands shoulder-width, body straight, lower until chest nearly touches floor, push up.<br><b>Safety:</b> Keep core tight, avoid sagging hips or flared elbows.</div>
+          </li>
+        </ul>
+      </div>
+      <div class="muscle-group">
+        <h2>Back</h2>
+        <ul class="workout-list">
+          <li><b>Pull Ups</b> <span class="workout-desc">- Builds width and strength in the upper back and lats.</span>
+            <div class="how-to"><b>How to:</b> Use a full range of motion, pulling chin above the bar.<br><b>Safety:</b> Avoid swinging or kipping. Use a grip that feels comfortable for your shoulders.</div>
+          </li>
+          <li><b>Barbell Row</b> <span class="workout-desc">- Excellent for mid-back thickness and overall strength.</span>
+            <div class="how-to"><b>How to:</b> Hinge at hips, keep back flat, pull bar to lower ribs.<br><b>Safety:</b> Do not round your back. Start light and focus on form.</div>
+          </li>
+          <li><b>Lat Pulldown</b> <span class="workout-desc">- Good alternative to pull ups for all levels.</span>
+            <div class="how-to"><b>How to:</b> Pull bar to upper chest, squeeze lats, control the return.<br><b>Safety:</b> Do not lean back excessively. Use a moderate weight for control.</div>
+          </li>
+        </ul>
+      </div>
+      <div class="muscle-group">
+        <h2>Legs</h2>
+        <ul class="workout-list">
+          <li><b>Squat</b> <span class="workout-desc">- The king of leg exercises for quads, glutes, and core.</span>
+            <div class="how-to"><b>How to:</b> Chest up, knees out, squat to at least parallel.<br><b>Safety:</b> Keep heels down, do not let knees cave in, use a spotter for heavy sets.</div>
+          </li>
+          <li><b>Leg Press</b> <span class="workout-desc">- Allows heavy loading for leg growth.</span>
+            <div class="how-to"><b>How to:</b> Feet shoulder-width, lower sled until knees are at 90°, press up.<br><b>Safety:</b> Do not lock out knees. Keep lower back pressed into the seat.</div>
+          </li>
+          <li><b>Lunges</b> <span class="workout-desc">- Improves balance and hits all leg muscles.</span>
+            <div class="how-to"><b>How to:</b> Step forward, lower until both knees at 90°, push back.<br><b>Safety:</b> Keep front knee over ankle, torso upright, and use controlled steps.</div>
+          </li>
+        </ul>
+      </div>
+      <div class="muscle-group">
+        <h2>Shoulders</h2>
+        <ul class="workout-list">
+          <li><b>Overhead Press</b> <span class="workout-desc">- Builds overall shoulder mass and strength.</span>
+            <div class="how-to"><b>How to:</b> Stand tall, press bar overhead, lock out elbows.<br><b>Safety:</b> Do not arch lower back. Keep core braced and wrists straight.</div>
+          </li>
+          <li><b>Lateral Raise</b> <span class="workout-desc">- Isolates the side delts for width.</span>
+            <div class="how-to"><b>How to:</b> Raise dumbbells to shoulder height, slight bend in elbows.<br><b>Safety:</b> Use light weights, avoid swinging, and control the movement.</div>
+          </li>
+          <li><b>Face Pull</b> <span class="workout-desc">- Great for rear delts and shoulder health.</span>
+            <div class="how-to"><b>How to:</b> Pull rope to face, elbows high, squeeze rear delts.<br><b>Safety:</b> Use a light weight, keep shoulders down and avoid jerking.</div>
+          </li>
+        </ul>
+      </div>
+      <div class="muscle-group">
+        <h2>Arms</h2>
+        <ul class="workout-list">
+          <li><b>Bicep Curl</b> <span class="workout-desc">- Best for biceps peak and size.</span>
+            <div class="how-to"><b>How to:</b> Elbows still, curl weight up, squeeze at the top.<br><b>Safety:</b> Avoid swinging or using your back. Lower the weight slowly.</div>
+          </li>
+          <li><b>Tricep Pushdown</b> <span class="workout-desc">- Isolates the triceps for strength and definition.</span>
+            <div class="how-to"><b>How to:</b> Elbows at sides, push bar down, extend fully.<br><b>Safety:</b> Do not flare elbows. Use a weight you can control.</div>
+          </li>
+          <li><b>Dips</b> <span class="workout-desc">- Compound movement for triceps and chest.</span>
+            <div class="how-to"><b>How to:</b> Lower body until elbows at 90°, press up.<br><b>Safety:</b> Keep shoulders down, avoid going too deep, and use assistance if needed.</div>
+          </li>
+        </ul>
+      </div>
+      <div class="muscle-group">
+        <h2>Core</h2>
+        <ul class="workout-list">
+          <li><b>Plank</b> <span class="workout-desc">- Builds core stability and endurance.</span>
+            <div class="how-to"><b>How to:</b> Body in a straight line, squeeze glutes, hold position.<br><b>Safety:</b> Do not let hips sag or pike. Breathe steadily.</div>
+          </li>
+          <li><b>Hanging Leg Raise</b> <span class="workout-desc">- Targets lower abs and hip flexors.</span>
+            <div class="how-to"><b>How to:</b> Hang from bar, raise legs to 90°, control down.<br><b>Safety:</b> Avoid swinging. Use slow, controlled reps.</div>
+          </li>
+          <li><b>Russian Twist</b> <span class="workout-desc">- Works obliques and rotational strength.</span>
+            <div class="how-to"><b>How to:</b> Sit, lean back, twist torso side to side.<br><b>Safety:</b> Keep back straight, move slowly, and avoid rounding lower back.</div>
+          </li>
+        </ul>
+      </div>
+      <div class="muscle-group">
+        <h2>Cardio & Conditioning</h2>
+        <ul class="workout-list">
+          <li><b>Running</b> <span class="workout-desc">- Improves cardiovascular health and endurance.</span>
+            <div class="how-to"><b>How to:</b> Use a comfortable pace, land mid-foot, keep posture upright.<br><b>Safety:</b> Wear proper shoes, avoid overtraining, and stay hydrated.</div>
+          </li>
+          <li><b>Swimming</b> <span class="workout-desc">- Full-body, low-impact cardio.</span>
+            <div class="how-to"><b>How to:</b> Use smooth strokes, focus on breathing and technique.<br><b>Safety:</b> Swim in supervised areas, warm up before, and avoid swimming alone.</div>
+          </li>
+          <li><b>Rowing Machine</b> <span class="workout-desc">- Great for full-body conditioning and stamina.</span>
+            <div class="how-to"><b>How to:</b> Push with legs, pull with arms, keep back straight.<br><b>Safety:</b> Do not round your back, use a controlled pace, and adjust resistance as needed.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </main>
+  <script>
+    // Login/Logout button logic
+    function isLoggedIn() {
+      return localStorage.getItem('role') === 'admin' || localStorage.getItem('role') === 'player';
+    }
+    const loginBtn = document.getElementById('login-btn');
+    function updateLoginBtn() {
+      if (isLoggedIn()) {
+        loginBtn.textContent = 'Log out';
+        loginBtn.onclick = function() {
+          localStorage.removeItem('role');
+          localStorage.removeItem('player');
+          location.reload();
+        };
+      } else {
+        loginBtn.textContent = 'Login';
+        loginBtn.onclick = function() {
+          sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'index.html');
+          window.location.href = 'login.html';
+        };
+      }
+    }
+    updateLoginBtn();
+  </script>
+</body>
+</html>

@@ -18,6 +18,8 @@
         <option value="events.html">Events</option>
         <option value="tournaments.html" selected>Tournaments</option>
         <option value="players.html">Players</option>
+        <option value="workout-guide.html">Workout Guide</option>
+        <option value="nutrition.html">Nutrition</option>
       </select>
       <button id="login-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Login</button>
     </nav>
@@ -47,12 +49,7 @@
         <button type="submit">Save Tournament</button>
       </form>
     </div>
-    <div class="card tournaments-list">
-      <h2>Official Tournaments</h2>
-      <ul>
-        <li class="no-tournaments-msg">No tournaments yet.</li>
-      </ul>
-    </div>
+    <div class="tournaments-list" id="tournament-cards-container" style="display:flex;flex-wrap:wrap;gap:2rem;"></div>
   </main>
   <script src="tournaments.js"></script>
   <script>
@@ -66,6 +63,7 @@
         loginBtn.textContent = 'Log out';
         loginBtn.onclick = function() {
           localStorage.removeItem('role');
+          localStorage.removeItem('player'); // Also clear player info on logout
           location.reload();
         };
       } else {

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cricket Team - Home</title>
+  <title>Mokku squad</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
 </head>
@@ -18,11 +18,16 @@
         <option value="events.html">Events</option>
         <option value="tournaments.html">Tournaments</option>
         <option value="players.html">Players</option>
+        <option value="workout-guide.html">Workout Guide</option>
+        <option value="nutrition.html">Nutrition</option>
       </select>
       <button id="login-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Login</button>
     </nav>
   </header>
   <main class="main-cards">
+    <div class="mokku-title-card">
+      <h1 class="mokku-title">Mokku Squad</h1>
+    </div>
     <div class="card about">
       <h2>About Team</h2>
       <p>Welcome to our cricket team! We are passionate, competitive, and always striving for excellence on and off the field.</p>
@@ -41,6 +46,8 @@
       </ul>
     </div>
   </main>
+  <script src="supabaseClient.js"></script>
+  <script src="events-preview.js"></script>
   <script src="tournaments-preview.js"></script>
   <script>
     // Login/Logout button logic
@@ -64,6 +71,21 @@
       }
     }
     updateLoginBtn();
+
+    // Add User Setting button for admin at bottom
+    function addUserSettingBtn() {
+      if (localStorage.getItem('role') === 'admin') {
+        const btn = document.createElement('button');
+        btn.textContent = 'User Setting';
+        btn.className = 'user-setting-btn';
+        btn.onclick = function() {
+          sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'index.html');
+          window.location.href = 'login.html';
+        };
+        document.body.appendChild(btn);
+      }
+    }
+    addUserSettingBtn();
   </script>
 </body>
 </html>

@@ -77,3 +77,112 @@ body {
 .add-event button:hover {
   background: #003c8f;
 }
+.mokku-title-card {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  margin-top: -1.5rem;
+}
+.mokku-title {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 2.7rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #a259f7;
+  text-shadow: 0 4px 16px rgba(162,89,247,0.18), 0 1px 0 #fff;
+  padding: 0.5rem 2.5rem;
+  border-radius: 12px;
+  border-bottom: 4px solid #a259f7;
+  box-shadow: 0 2px 12px rgba(162,89,247,0.09);
+}
+.user-setting-btn {
+  position: fixed;
+  left: 50%;
+  bottom: 2.5rem;
+  transform: translateX(-50%);
+  background: #fff;
+  color: #a259f7;
+  border: 2px solid #a259f7;
+  border-radius: 8px;
+  padding: 0.8rem 2.2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  box-shadow: 0 2px 12px rgba(162,89,247,0.09);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  z-index: 100;
+}
+.user-setting-btn:hover {
+  background: #a259f7;
+  color: #fff;
+}
+.tournament-card .save-availability-btn, .tournament-card .avail-checkbox, .tournament-card .notavail-checkbox, .tournament-card label[for^="avail"] {
+  position: relative;
+  z-index: 2;
+}
+.tournament-card .avail-checkbox,
+.tournament-card .notavail-checkbox {
+  display: inline-block !important;
+  position: static !important;
+  margin-right: 0.5em;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+}
+.tournament-card .save-availability-btn {
+  display: inline-block !important;
+  position: static !important;
+  margin-left: 1em;
+  background: #a259f7;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4em 1.2em;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(162,89,247,0.08);
+}
+.tournament-card label {
+  font-size: 1em;
+  color: #333;
+  font-weight: 500;
+  margin-right: 0.5em;
+}
+.tournament-card div {
+  margin-bottom: 0.5em;
+}
+.tournament-list-item .avail-checkbox,
+.tournament-list-item .notavail-checkbox {
+  display: inline-block !important;
+  position: static !important;
+  margin-right: 0.5em;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+}
+.tournament-list-item .save-availability-btn {
+  display: inline-block !important;
+  position: static !important;
+  margin-left: 1em;
+  background: #a259f7;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4em 1.2em;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(162,89,247,0.08);
+}
+.tournament-list-item label {
+  font-size: 1em;
+  color: #333;
+  font-weight: 500;
+  margin-right: 0.5em;
+}
+.tournament-list-item div {
+  margin-bottom: 0.5em;
+}

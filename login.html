@@ -17,8 +17,13 @@
         <option value="events.html">Events</option>
         <option value="tournaments.html">Tournaments</option>
         <option value="players.html">Players</option>
+        <option value="workout-guide.html">Workout Guide</option>
+        <option value="nutrition.html">Nutrition</option>
       </select>
       <button id="login-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;" disabled>Login</button>
+      <!-- Add this after the Login button inside your form -->
+<button id="add-user-btn" type="button" style="display:none;background:#fff;color:#1565c0;border:1px solid #1565c0;border-radius:6px;padding:0.7rem 1.5rem;font-size:1rem;font-weight:bold;cursor:pointer;margin-top:0.5rem;">Add User</button>
+
     </nav>
   </header>
   <main style="display:flex;justify-content:center;align-items:center;height:70vh;">
@@ -30,7 +35,47 @@
       <input type="password" id="password" name="password" required>
       <button type="submit" style="background:#1565c0;color:#fff;border:none;border-radius:6px;padding:0.7rem 1.5rem;font-size:1rem;font-weight:bold;cursor:pointer;">Login</button>
     </form>
+    <!-- Add this modal after your form, before </main> -->
+<div id="add-user-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);align-items:center;justify-content:center;z-index:1000;">
+  <div style="background:#fff;padding:2rem 2.5rem;border-radius:16px;box-shadow:0 4px 24px rgba(21,101,192,0.08);min-width:320px;position:relative;">
+    <h2 style="color:#1565c0;margin:0 0 1rem 0;">Add User</h2>
+    <form id="add-user-form" style="display:flex;flex-direction:column;gap:1rem;">
+      <label for="new-username">Username:</label>
+      <input type="text" id="new-username" required>
+      <label for="new-password">Password:</label>
+      <input type="password" id="new-password" required>
+      <label for="new-role">Role:</label>
+      <select id="new-role">
+        <option value="player">Player</option>
+        <option value="admin">Admin</option>
+      </select>
+      <label for="assign-player">Assign to Player:</label>
+      <select id="assign-player">
+        <option value="">-- Select Player --</option>
+        <option value="Santhuru Sivamoorthy">Santhuru Sivamoorthy</option>
+        <option value="Vithuran">Vithuran</option>
+        <option value="Jenagan">Jenagan</option>
+        <option value="Arun">Arun</option>
+        <option value="Rion Ockers">Rion Ockers</option>
+        <option value="Logesan Shandralingam">Logesan Shandralingam</option>
+        <option value="Mayuran Sivamoorthy">Mayuran Sivamoorthy</option>
+        <option value="Don Sinthu">Don Sinthu</option>
+        <option value="Kanesh">Kanesh</option>
+        <option value="Pradeep">Pradeep</option>
+        <option value="Rasa Suji">Rasa Suji</option>
+        <option value="Sudarshan">Sudarshan</option>
+        <option value="Gobi Annan">Gobi Annan</option>
+        <option value="Vaishnavan Selvam">Vaishnavan Selvam</option>
+      </select>
+      <button type="submit" style="background:#1565c0;color:#fff;border:none;border-radius:6px;padding:0.7rem 1.5rem;font-size:1rem;font-weight:bold;cursor:pointer;">Create User</button>
+      <button type="button" id="close-modal" style="background:#fff;color:#1565c0;border:1px solid #1565c0;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Cancel</button>
+    </form>
+    <div id="add-user-message" style="color:#d32f2f;margin-top:0.5rem;"></div>
+  </div>
+</div>
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+  <script src="supabaseClient.js"></script>
   <script src="login.js"></script>
   <script>
     // Login/Logout button logic

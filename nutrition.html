@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nutrition Guide</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .nutrition-container {
+      max-width: 950px;
+      margin: 3rem auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(21,101,192,0.10);
+      padding: 2.5rem 2rem;
+    }
+    .nutrition-title {
+      text-align: center;
+      color: #1565c0;
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 2rem;
+    }
+    .nutrition-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2.5rem;
+    }
+    .nutrition-table th, .nutrition-table td {
+      border: 1px solid #b3c6e0;
+      padding: 0.7em 1em;
+      text-align: center;
+      font-size: 1em;
+    }
+    .nutrition-table th {
+      background: #eaf1fb;
+      color: #1565c0;
+      font-weight: bold;
+    }
+    .scenario-title {
+      color: #a259f7;
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      text-align: left;
+    }
+    .calories-note {
+      font-size: 1em;
+      color: #444;
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <a href="index.html"><img src="assets/logo.png" alt="Team Logo" height="48"></a>
+    </div>
+    <nav style="display:flex;align-items:center;gap:1rem;">
+      <select class="nav-dropdown" onchange="location = this.value;">
+        <option value="index.html">Home</option>
+        <option value="events.html">Events</option>
+        <option value="tournaments.html">Tournaments</option>
+        <option value="players.html">Players</option>
+        <option value="workout-guide.html">Workout Guide</option>
+        <option value="nutrition.html" selected>Nutrition</option>
+      </select>
+      <button id="login-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Login</button>
+    </nav>
+  </header>
+  <main>
+    <div class="nutrition-container">
+      <div class="nutrition-title">7-Day Nutrition Plan</div>
+      <div class="calories-note"><b>Calories are approximate and should be adjusted for your body weight, age, and activity level.</b></div>
+      <div class="scenario-title">Cut (Fat Loss) &mdash; ~1800-2000 kcal/day</div>
+      <table class="nutrition-table">
+        <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th><th>Snacks</th><th>Total Calories</th></tr>
+        <tr><td>Monday</td><td>Oats with berries &amp; egg whites</td><td>Grilled chicken salad</td><td>Baked salmon, broccoli, brown rice</td><td>Greek yogurt, apple</td><td>1850</td></tr>
+        <tr><td>Tuesday</td><td>Low-fat cottage cheese, banana</td><td>Turkey wrap, mixed greens</td><td>Stir-fried tofu, veggies, quinoa</td><td>Carrot sticks, almonds</td><td>1800</td></tr>
+        <tr><td>Wednesday</td><td>Scrambled eggs, spinach, whole wheat toast</td><td>Grilled shrimp, quinoa salad</td><td>Chicken breast, green beans, sweet potato</td><td>Protein shake, orange</td><td>1900</td></tr>
+        <tr><td>Thursday</td><td>Overnight oats, chia seeds</td><td>Lean beef, roasted veggies</td><td>White fish, asparagus, brown rice</td><td>Rice cakes, cottage cheese</td><td>1850</td></tr>
+        <tr><td>Friday</td><td>Egg white omelette, tomatoes</td><td>Chicken breast, mixed salad</td><td>Turkey chili, steamed broccoli</td><td>Low-fat yogurt, berries</td><td>1800</td></tr>
+        <tr><td>Saturday</td><td>Protein pancakes, strawberries</td><td>Grilled fish, quinoa, veggies</td><td>Lean beef stir-fry, brown rice</td><td>Celery sticks, hummus</td><td>1950</td></tr>
+        <tr><td>Sunday</td><td>Oats, blueberries, almonds</td><td>Chicken salad, olive oil dressing</td><td>Grilled shrimp, veggies, sweet potato</td><td>Protein bar, apple</td><td>1900</td></tr>
+      </table>
+      <div class="scenario-title">Bulk (Muscle Gain) &mdash; ~2800-3200 kcal/day</div>
+      <table class="nutrition-table">
+        <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th><th>Snacks</th><th>Total Calories</th></tr>
+        <tr><td>Monday</td><td>Oats, banana, peanut butter, whole eggs</td><td>Chicken breast, pasta, veggies</td><td>Beef stew, potatoes, green beans</td><td>Trail mix, protein shake</td><td>3000</td></tr>
+        <tr><td>Tuesday</td><td>Greek yogurt, granola, berries</td><td>Turkey sandwich, cheese, salad</td><td>Salmon, rice, mixed veggies</td><td>Rice cakes, nut butter</td><td>2900</td></tr>
+        <tr><td>Wednesday</td><td>Eggs, whole wheat toast, avocado</td><td>Chicken curry, white rice</td><td>Pasta with meat sauce, salad</td><td>Protein bar, banana</td><td>3100</td></tr>
+        <tr><td>Thursday</td><td>Pancakes, maple syrup, eggs</td><td>Beef burger, sweet potato fries</td><td>Chicken stir-fry, noodles</td><td>Mixed nuts, yogurt</td><td>3200</td></tr>
+        <tr><td>Friday</td><td>Omelette, cheese, toast</td><td>Fish tacos, rice, beans</td><td>Steak, mashed potatoes, veggies</td><td>Granola bar, orange</td><td>2950</td></tr>
+        <tr><td>Saturday</td><td>Bagel, cream cheese, eggs</td><td>Chicken wrap, hummus, salad</td><td>Beef lasagna, garlic bread</td><td>Fruit smoothie, nuts</td><td>3050</td></tr>
+        <tr><td>Sunday</td><td>French toast, berries, eggs</td><td>Grilled chicken, pasta salad</td><td>Salmon, couscous, veggies</td><td>Protein shake, apple</td><td>3000</td></tr>
+      </table>
+      <div class="scenario-title">Balanced (Maintenance) &mdash; ~2200-2400 kcal/day</div>
+      <table class="nutrition-table">
+        <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th><th>Snacks</th><th>Total Calories</th></tr>
+        <tr><td>Monday</td><td>Oats, milk, banana</td><td>Chicken salad sandwich</td><td>Grilled fish, veggies, brown rice</td><td>Yogurt, nuts</td><td>2300</td></tr>
+        <tr><td>Tuesday</td><td>Eggs, whole wheat toast</td><td>Turkey wrap, salad</td><td>Beef stir-fry, rice</td><td>Fruit, granola bar</td><td>2250</td></tr>
+        <tr><td>Wednesday</td><td>Greek yogurt, berries, oats</td><td>Chicken breast, quinoa, veggies</td><td>Salmon, sweet potato, salad</td><td>Rice cakes, peanut butter</td><td>2350</td></tr>
+        <tr><td>Thursday</td><td>Protein pancakes, apple</td><td>Lean beef, brown rice, veggies</td><td>Chicken curry, naan, salad</td><td>Protein shake, orange</td><td>2400</td></tr>
+        <tr><td>Friday</td><td>Omelette, spinach, toast</td><td>Fish sandwich, salad</td><td>Turkey chili, brown rice</td><td>Low-fat yogurt, berries</td><td>2200</td></tr>
+        <tr><td>Saturday</td><td>Bagel, eggs, fruit</td><td>Chicken wrap, veggies</td><td>Beef stew, potatoes, salad</td><td>Granola bar, apple</td><td>2300</td></tr>
+        <tr><td>Sunday</td><td>Oats, milk, berries</td><td>Grilled fish, salad</td><td>Chicken breast, sweet potato, veggies</td><td>Protein bar, nuts</td><td>2250</td></tr>
+      </table>
+    </div>
+  </main>
+  <script>
+    // Login/Logout button logic
+    function isLoggedIn() {
+      return localStorage.getItem('role') === 'admin' || localStorage.getItem('role') === 'player';
+    }
+    const loginBtn = document.getElementById('login-btn');
+    function updateLoginBtn() {
+      if (isLoggedIn()) {
+        loginBtn.textContent = 'Log out';
+        loginBtn.onclick = function() {
+          localStorage.removeItem('role');
+          localStorage.removeItem('player');
+          location.reload();
+        };
+      } else {
+        loginBtn.textContent = 'Login';
+        loginBtn.onclick = function() {
+          sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'index.html');
+          window.location.href = 'login.html';
+        };
+      }
+    }
+    updateLoginBtn();
+  </script>
+</body>
+</html>

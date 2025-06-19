@@ -38,6 +38,50 @@
       padding: 1.5rem 1rem;
       margin-bottom: 2rem;
     }
+    .player-info-career label {
+      display: inline-block;
+      width: 180px;
+      font-weight: 500;
+      margin-bottom: 0.5em;
+      vertical-align: top;
+    }
+    .player-info-career input {
+      width: 220px;
+      padding: 0.3em 0.6em;
+      border-radius: 6px;
+      border: 1px solid #b3c6e0;
+      margin-bottom: 0.5em;
+      font-size: 1em;
+      vertical-align: top;
+    }
+    .player-info-career input[disabled] {
+      border: none;
+      background: transparent;
+      color: #222;
+      box-shadow: none;
+      padding-left: 0;
+    }
+    .player-info-career input:not([disabled]) {
+      border: 1px solid #b3c6e0;
+      background: #fff;
+      color: #222;
+      padding-left: 0.6em;
+    }
+    .player-info-career button {
+      margin-top: 1em;
+      background: #1565c0;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1.2rem;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .player-info-career button:hover {
+      background: #003c8f;
+    }
     .player-info-logs textarea {
       width: 100%;
       min-height: 60px;
@@ -74,6 +118,8 @@
         <option value="events.html">Events</option>
         <option value="tournaments.html">Tournaments</option>
         <option value="players.html">Players</option>
+        <option value="workout-guide.html">Workout Guide</option>
+        <option value="nutrition.html">Nutrition</option>
       </select>
       <button id="login-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Login</button>
     </nav>
@@ -84,23 +130,51 @@
       <div class="player-info-name" id="player-name"></div>
       <div class="player-info-career" id="player-career">
         <h3>Career</h3>
-        <div id="career-details">No career details yet.</div>
+        <div id="career-details">Loading career details...</div>
       </div>
       <div class="player-info-logs">
-        <h3>Logs</h3>
+        <h3>Player Logs</h3>
         <textarea id="log-input" placeholder="Add a new log..."></textarea>
         <button id="save-log">Save Log</button>
         <ul id="logs-list"></ul>
       </div>
+      <div class="player-info-logs">
+        <h3>Workout Logs</h3>
+        <button id="workout-log-btn" style="margin-bottom:1em;">Workout Log</button>
+        <ul id="workout-logs-list"></ul>
+      </div>
     </div>
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+  <script src="supabaseClient.js"></script>
   <script src="player-info.js"></script>
   <script>
-    // Login button logic
-    document.getElementById('login-btn').onclick = function() {
-      sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'index.html');
-      window.location.href = 'login.html';
-    };
+    // Login/Logout button logic
+    function isLoggedIn() {
+      return localStorage.getItem('role') === 'admin' || localStorage.getItem('role') === 'player';
+    }
+    const loginBtn = document.getElementById('login-btn');
+    function updateLoginBtn() {
+      if (isLoggedIn()) {
+        loginBtn.textContent = 'Log out';
+        loginBtn.onclick = function() {
+          localStorage.removeItem('role');
+          localStorage.removeItem('player');
+          location.reload();
+        };
+      } else {
+        loginBtn.textContent = 'Login';
+        loginBtn.onclick = function() {
+          sessionStorage.setItem('prevPage', window.location.pathname.split('/').pop() || 'index.html');
+          // Save query string if coming from player-info.html
+          if (window.location.pathname.endsWith('player-info.html')) {
+            sessionStorage.setItem('prevQuery', window.location.search.replace(/^\?/, ''));
+          }
+          window.location.href = 'login.html';
+        };
+      }
+    }
+    updateLoginBtn();
   </script>
 </body>
 </html>
