@@ -417,7 +417,45 @@
         <p>Loading files...</p>
       </div>
 
-      <div id="error-message" class="error-message" style="display: none;"></div>
+      <div id="error-message" class="error-message" style="display: none; white-space: pre-wrap; font-family: 'Consolas', 'Monaco', monospace; background: #fee; border: 1px solid #fcc; padding: 1rem; border-radius: 8px; margin: 1rem 0;"></div>
+      
+      <!-- Troubleshooting section -->
+      <div id="troubleshooting" class="card mt-4" style="display: none; background: #f8f9fa; border: 1px solid #dee2e6;">
+        <div class="card-header" style="background: #e9ecef; border-bottom: 1px solid #dee2e6;">
+          <h5 style="margin: 0; color: #495057;">🔧 Common Issues & Quick Fixes</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6 style="color: #dc3545;">🚨 OAuth Errors (Most Common)</h6>
+              <ul style="font-size: 0.9rem; margin-bottom: 1rem;">
+                <li><strong>Origin not authorized:</strong> Add your domain to Google Cloud Console OAuth settings</li>
+                <li><strong>idpiframe_initialization_failed:</strong> Check OAuth consent screen configuration</li>
+                <li><strong>popup_blocked:</strong> Allow popups for this site</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6 style="color: #28a745;">⚙️ Setup Issues</h6>
+              <ul style="font-size: 0.9rem; margin-bottom: 1rem;">
+                <li><strong>API not enabled:</strong> Enable Google Drive API in project</li>
+                <li><strong>Invalid credentials:</strong> Check API key and Client ID</li>
+                <li><strong>File:// protocol:</strong> Use HTTP server (localhost)</li>
+              </ul>
+            </div>
+          </div>
+          <div style="margin-top: 1rem;">
+            <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="btn btn-outline-primary btn-sm">
+              🔗 Open Google Cloud Console
+            </a>
+            <button onclick="location.reload()" class="btn btn-outline-secondary btn-sm" style="margin-left: 0.5rem;">
+              🔄 Refresh Page
+            </button>
+            <button onclick="showSetupGuide()" class="btn btn-outline-info btn-sm" style="margin-left: 0.5rem;">
+              📋 Show Setup Guide
+            </button>
+          </div>
+        </div>
+      </div>
 
       <div id="files-grid" class="files-grid"></div>
       <div id="files-list" class="files-list"></div>
@@ -468,18 +506,37 @@
         script.onload = () => resolve();
         script.onerror = () => reject(new Error('Failed to load Google API'));
         document.head.appendChild(script);
-      });
-    }    // Initialize the API
+      });    }    // Initialize the API with enhanced error handling
     async function initializeGapi() {
       try {
         // Check if we're running on file:// protocol
         if (window.location.protocol === 'file:') {
-          showError('Google Drive integration requires a web server. Please serve this page through HTTP (localhost) instead of opening the file directly. See the console for instructions.');
-          console.error('SETUP REQUIRED:');
-          console.error('1. Install Python and run: python -m http.server 8000');
-          console.error('2. Or install Node.js and run: npx http-server');
-          console.error('3. Then access: http://localhost:8000/drive-files.html');
+          showError('🚨 Google Drive integration requires a web server.\n\n📋 TO FIX:\n1. Install Python: python -m http.server 8000\n2. Or install Node.js: npx http-server\n3. Then access: http://localhost:8000/drive-files.html\n\n❌ Do NOT open this file directly in browser');
+          console.error('SETUP REQUIRED: Use a web server');
           return;
+        }
+
+        const currentOrigin = window.location.origin;
+        const currentUrl = window.location.href;
+        
+        console.log('🔍 OAuth Configuration Check:');
+        console.log('Current URL:', currentUrl);
+        console.log('Current Origin:', currentOrigin);
+        console.log('Client ID:', CLIENT_ID);
+        console.log('API Key:', API_KEY ? 'Set' : 'Missing');
+
+        // Validate required origins for different environments
+        const validOrigins = [
+          'http://localhost:8000',
+          'http://localhost:3000',
+          'http://localhost:5000',
+          'http://127.0.0.1:8000',
+          'https://your-domain.com' // Replace with your actual domain
+        ];
+        
+        if (!validOrigins.includes(currentOrigin) && !currentOrigin.includes('localhost')) {
+          console.warn('⚠️ Current origin may not be authorized:', currentOrigin);
+          console.warn('📋 Add this origin to Google Cloud Console OAuth settings if needed');
         }
 
         await loadGoogleAPI();
@@ -488,16 +545,42 @@
           gapi.load('client:auth2', resolve);
         });
 
-        await gapi.client.init({
+        // Enhanced initialization with better error handling
+        const initConfig = {
           apiKey: API_KEY,
           clientId: CLIENT_ID,
           discoveryDocs: [DISCOVERY_DOC],
-          scope: SCOPES,
-          cookiepolicy: 'single_host_origin'
-        });
+          scope: SCOPES
+        };
+
+        console.log('🚀 Initializing Google API...');
+
+        try {
+          await gapi.client.init(initConfig);
+        } catch (initError) {
+          console.error('❌ Google API init failed:', initError);
+          
+          // Handle specific OAuth configuration errors
+          if (initError.error === 'idpiframe_initialization_failed') {
+            const errorMsg = `🚨 OAuth Configuration Error\n\n❌ Domain "${currentOrigin}" is not authorized\n\n📋 IMMEDIATE FIX NEEDED:\n1. Go to: https://console.cloud.google.com/apis/credentials\n2. Find OAuth 2.0 Client ID: ${CLIENT_ID}\n3. Click "Edit" (pencil icon)\n4. Add to "Authorized JavaScript origins":\n   • ${currentOrigin}\n5. Add to "Authorized redirect URIs":\n   • ${currentOrigin}\n   • ${currentUrl}\n6. Click "Save"\n7. Wait 5-10 minutes, then refresh this page\n\n💡 For development, also add:\n   • http://localhost:8000\n   • http://localhost:3000`;
+            showError(errorMsg);
+            return;
+          } else if (initError.error === 'popup_blocked_by_browser') {
+            showError('🚨 Popup Blocked\n\nPlease:\n1. Allow popups for this site\n2. Refresh the page\n3. Try again');
+            return;
+          } else if (initError.details && initError.details.includes('Invalid')) {
+            const errorMsg = `🚨 Invalid API Configuration\n\n❌ Check these settings:\n• API Key: ${API_KEY}\n• Client ID: ${CLIENT_ID}\n\n📋 Verify in Google Cloud Console:\n1. Google Drive API is enabled\n2. Credentials are correct\n3. Quotas are not exceeded`;
+            showError(errorMsg);
+            return;
+          }
+          
+          throw initError; // Re-throw if not handled above
+        }
 
         authInstance = gapi.auth2.getAuthInstance();
         gapiLoaded = true;
+        
+        console.log('✅ Google API initialized successfully');
         
         // Check if user is already signed in
         if (authInstance.isSignedIn.get()) {
@@ -506,12 +589,63 @@
           loadFiles(currentFolderId);
         }
       } catch (error) {
-        console.error('Error initializing Google API:', error);
-        if (error.message && error.message.includes('cookiePolicy')) {
-          showError('Google Drive API requires proper domain configuration. Please run this page on a web server (localhost) instead of opening the file directly.');
+        console.error('❌ Critical error initializing Google API:', error);
+        console.error('Error object:', {
+          message: error.message,
+          details: error.details,
+          error: error.error,
+          status: error.status,
+          stack: error.stack
+        });
+        
+        let errorMessage = '🚨 Failed to initialize Google Drive API\n\n';
+        
+        // Enhanced error categorization
+        if (error.status === 400) {
+          errorMessage += `❌ Bad Request (400)\nThis usually means OAuth configuration issues.\n\n📋 CHECK:\n1. Client ID is correct: ${CLIENT_ID}\n2. Current origin "${currentOrigin}" is authorized\n3. OAuth consent screen is configured\n4. Google Drive API is enabled`;
+        } else if (error.status === 403) {
+          errorMessage += `❌ Forbidden (403)\nAPI access denied.\n\n📋 CHECK:\n1. API Key restrictions\n2. Project quotas\n3. Billing account (if required)`;
+        } else if (error.status === 401) {
+          errorMessage += `❌ Unauthorized (401)\nInvalid credentials.\n\n📋 CHECK:\n1. API Key is valid: ${API_KEY}\n2. Client ID is valid: ${CLIENT_ID}`;
+        } else if (error.message && error.message.includes('network')) {
+          errorMessage += `❌ Network Error\nCannot reach Google servers.\n\n📋 CHECK:\n1. Internet connection\n2. Firewall settings\n3. DNS resolution`;
+        } else if (error.details) {
+          if (error.details.includes('Not a valid origin') || error.details.includes('origin_mismatch')) {
+            errorMessage += `❌ Origin Not Authorized: "${currentOrigin}"\n\n📋 QUICK FIX:\n1. Go to: https://console.cloud.google.com/apis/credentials\n2. Edit OAuth client: ${CLIENT_ID}\n3. Add "${currentOrigin}" to authorized origins\n4. Save and wait 5-10 minutes`;
+          } else if (error.details.includes('invalid_client')) {
+            errorMessage += `❌ Invalid Client ID: "${CLIENT_ID}"\n\nPlease verify the Client ID in Google Cloud Console`;
+          } else {
+            errorMessage += `❌ Details: ${error.details}`;
+          }
         } else {
-          showError('Failed to initialize Google Drive API. Please check your API configuration and try again.');
+          errorMessage += `❌ Unexpected error: ${error.message || 'Unknown error'}`;
         }
+        
+        showError(errorMessage);
+        
+        // Always show comprehensive troubleshooting
+        console.error('\n🔧 COMPLETE TROUBLESHOOTING GUIDE:');
+        console.error('═══════════════════════════════════════');
+        console.error('1. GOOGLE CLOUD CONSOLE SETUP:');
+        console.error('   → https://console.cloud.google.com/');
+        console.error('   → Enable Google Drive API');
+        console.error('   → Create OAuth 2.0 Client ID');
+        console.error('   → Configure OAuth consent screen');
+        console.error('');
+        console.error('2. OAUTH ORIGINS (most common issue):');
+        console.error('   → Current origin:', currentOrigin);
+        console.error('   → Add to authorized JavaScript origins');
+        console.error('   → Add to authorized redirect URIs');
+        console.error('');
+        console.error('3. DEVELOPMENT SETUP:');
+        console.error('   → Use localhost (not 127.0.0.1)');
+        console.error('   → Serve over HTTP/HTTPS (not file://)');
+        console.error('   → Allow popups in browser');
+        console.error('');
+        console.error('4. CREDENTIALS:');
+        console.error('   → API Key:', API_KEY);
+        console.error('   → Client ID:', CLIENT_ID);
+        console.error('   → Folder ID:', TEAM_FOLDER_ID);
       }
     }
 
@@ -784,22 +918,153 @@
     // Utility functions
     function showLoading(show) {
       document.getElementById('loading').style.display = show ? 'block' : 'none';
-    }
-
-    function showError(message) {
+    }    function showError(message) {
       const errorDiv = document.getElementById('error-message');
       errorDiv.textContent = message;
       errorDiv.style.display = 'block';
+      
+      // Show troubleshooting section for common errors
+      if (message.includes('OAuth') || message.includes('authorized') || message.includes('Configuration') || message.includes('400') || message.includes('🚨')) {
+        document.getElementById('troubleshooting').style.display = 'block';
+      }
     }
 
     function hideError() {
       document.getElementById('error-message').style.display = 'none';
-    }    // Event listeners
+      document.getElementById('troubleshooting').style.display = 'none';
+    }
+    
+    function showSetupGuide() {
+      const guide = `
+🔧 COMPLETE GOOGLE CLOUD CONSOLE SETUP GUIDE:
+═══════════════════════════════════════════════
+
+📋 STEP 1: Create/Select Project
+1. Go to: https://console.cloud.google.com/
+2. Create a new project or select existing one
+3. Note your project ID
+
+📋 STEP 2: Enable Google Drive API
+1. Go to: APIs & Services → Library
+2. Search for "Google Drive API"
+3. Click on it and press "Enable"
+
+📋 STEP 3: Create API Key
+1. Go to: APIs & Services → Credentials
+2. Click "Create Credentials" → "API Key"
+3. Copy the API key
+4. Replace API_KEY in this file with your key
+
+📋 STEP 4: Create OAuth 2.0 Client ID
+1. Still in Credentials page
+2. Click "Create Credentials" → "OAuth 2.0 Client ID"
+3. If prompted, configure OAuth consent screen first
+4. Choose "Web application"
+5. Add these to "Authorized JavaScript origins":
+   • http://localhost:8000
+   • http://localhost:3000
+   • ${window.location.origin}
+   • (add your live domain if different)
+6. Add these to "Authorized redirect URIs":
+   • ${window.location.origin}
+   • ${window.location.href}
+7. Copy the Client ID
+8. Replace CLIENT_ID in this file
+
+📋 STEP 5: Get Google Drive Folder ID
+1. Open Google Drive in your browser
+2. Navigate to your team folder
+3. Look at the URL: https://drive.google.com/drive/folders/FOLDER_ID_HERE
+4. Copy the FOLDER_ID_HERE part
+5. Replace TEAM_FOLDER_ID in this file
+
+📋 STEP 6: Configure OAuth Consent Screen (if needed)
+1. Go to: APIs & Services → OAuth consent screen
+2. Choose "External" (unless using G Suite)
+3. Fill required fields (app name, user support email, etc.)
+4. Add scopes: ../auth/drive.readonly
+5. Add test users if in testing mode
+
+⚠️ IMPORTANT NOTES:
+• Changes to OAuth settings can take 5-10 minutes to take effect
+• Use localhost (not 127.0.0.1) for development
+• Ensure this page is served over HTTP/HTTPS (not file://)
+• Check browser console for detailed error messages
+
+Current Configuration:
+• API Key: ${API_KEY}
+• Client ID: ${CLIENT_ID}  
+• Folder ID: ${TEAM_FOLDER_ID}
+• Current Origin: ${window.location.origin}
+      `;
+      
+      console.log(guide);
+      alert('📋 Setup guide printed to console (F12 → Console)\\n\\nAlso see: https://developers.google.com/drive/api/quickstart/js');
+    }
+    function validateConfiguration() {
+      console.log('🔍 Validating configuration...');
+      
+      const issues = [];
+      
+      if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE' || API_KEY.length < 20) {
+        issues.push('❌ API Key missing or invalid');
+      }
+      
+      if (!CLIENT_ID || CLIENT_ID === 'YOUR_CLIENT_ID_HERE' || !CLIENT_ID.includes('.apps.googleusercontent.com')) {
+        issues.push('❌ Client ID missing or invalid');
+      }
+      
+      if (!TEAM_FOLDER_ID || TEAM_FOLDER_ID === 'YOUR_GOOGLE_DRIVE_FOLDER_ID' || TEAM_FOLDER_ID.length < 10) {
+        issues.push('❌ Google Drive Folder ID missing or invalid');
+      }
+      
+      if (issues.length > 0) {
+        const errorMsg = `🚨 Configuration Issues Found:\n\n${issues.join('\n')}\n\n📋 SETUP REQUIRED:\n1. Get credentials from Google Cloud Console\n2. Replace placeholder values in this file\n3. Configure OAuth settings for your domain\n\n💡 See console for detailed instructions`;
+        showError(errorMsg);
+        
+        console.error('🔧 GOOGLE CLOUD CONSOLE SETUP GUIDE:');
+        console.error('═══════════════════════════════════════');
+        console.error('1. Go to: https://console.cloud.google.com/');
+        console.error('2. Create or select a project');
+        console.error('3. Enable APIs:');
+        console.error('   → Library → Search "Google Drive API" → Enable');
+        console.error('4. Create API Key:');
+        console.error('   → Credentials → Create Credentials → API Key');
+        console.error('   → Copy and replace API_KEY in this file');
+        console.error('5. Create OAuth Client ID:');
+        console.error('   → Credentials → Create Credentials → OAuth 2.0 Client ID');
+        console.error('   → Application type: Web application');
+        console.error('   → Add authorized JavaScript origins (your domains)');
+        console.error('   → Copy Client ID and replace CLIENT_ID in this file');
+        console.error('6. Get Google Drive Folder ID:');
+        console.error('   → Open Google Drive → Navigate to your team folder');
+        console.error('   → Copy folder ID from URL (after /folders/)');
+        console.error('   → Replace TEAM_FOLDER_ID in this file');
+        console.error('');
+        console.error('CURRENT VALUES:');
+        console.error('   API_KEY:', API_KEY);
+        console.error('   CLIENT_ID:', CLIENT_ID);
+        console.error('   TEAM_FOLDER_ID:', TEAM_FOLDER_ID);
+        
+        return false;
+      }
+      
+      console.log('✅ Configuration appears valid');
+      return true;
+    }
+
+    // Event listeners
     document.addEventListener('DOMContentLoaded', function() {
+      // Validate configuration first
+      if (!validateConfiguration()) {
+        console.error('⚠️ Stopping initialization due to configuration issues');
+        return;
+      }
+      
       // Initialize Google API
       initializeGapi().catch(error => {
         console.error('Failed to initialize Google API:', error);
-        showError('Failed to load Google Drive integration. Please refresh the page.');
+        showError('Failed to load Google Drive integration. Please check console for details and refresh the page.');
       });
       
       // Auth button
