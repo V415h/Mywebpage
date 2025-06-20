@@ -108,15 +108,18 @@
       border-color: #1565c0;
       box-shadow: 0 0 0 3px rgba(21,101,192,0.1);
       outline: none;
-    }
-    
-    /* Form styling for career section */
+    }    /* Form styling for career section */
     .player-info-career label {
       display: none; /* Hide old labels */
     }
-    .player-info-career input {
-      display: none; /* Hide old inputs, we'll use new styling */
-    }    .player-info-career button {
+    .player-info-career > input {
+      display: none; /* Hide old direct inputs only, not inputs inside career items */
+    }
+    /* Show the new styled editable inputs */
+    .player-info-career .career-value.editable {
+      display: block !important;
+    }
+    .player-info-career button {
       margin-top: 1.5rem;
       background: linear-gradient(135deg, #1565c0, #0d47a1);
       color: #fff;
@@ -135,6 +138,10 @@
       background: linear-gradient(135deg, #003c8f, #002171);
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(21,101,192,0.4);
+    }
+    /* Hide career edit button for players */
+    .player-role .player-info-career button {
+      display: none;
     }
     .player-info-logs textarea {
       width: 100%;
@@ -257,9 +264,17 @@
     // Login/Logout button logic
     function isLoggedIn() {
       return localStorage.getItem('role') === 'admin' || localStorage.getItem('role') === 'player';
-    }
-    const loginBtn = document.getElementById('login-btn');
+    }    const loginBtn = document.getElementById('login-btn');
     function updateLoginBtn() {
+      const userRole = localStorage.getItem('role');
+      
+      // Add role-based class to body for CSS targeting
+      if (userRole === 'player') {
+        document.body.classList.add('player-role');
+      } else {
+        document.body.classList.remove('player-role');
+      }
+      
       if (isLoggedIn()) {
         loginBtn.textContent = 'Log out';
         loginBtn.onclick = function() {

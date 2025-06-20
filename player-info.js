@@ -23,7 +23,9 @@ const careerMap = {
   'Rion Ockers': 'Wicketkeeper. Fast hands and sharp mind.',
   // Add more player career details here as needed
 };
-document.getElementById('career-details').textContent = careerMap[playerName] || 'No career details yet.';
+
+// Don't immediately set career details - wait for database load
+// document.getElementById('career-details').textContent = careerMap[playerName] || 'No career details yet.';
 
 // --- Career Details CRUD with Supabase ---
 const careerFields = [
@@ -38,10 +40,12 @@ const careerFields = [
 const careerDetailsDiv = document.getElementById('career-details');
 
 function renderCareerForm(data, editable) {
+  console.log('renderCareerForm called with:', { data, editable, isAdmin: isAdmin() });
   careerDetailsDiv.innerHTML = '';
   
   careerFields.forEach(f => {
     const val = data && data[f.id] !== undefined ? data[f.id] : '';
+    console.log(`Rendering field ${f.id} with value:`, val);
     
     // Create the career item container
     const careerItem = document.createElement('div');
@@ -82,22 +86,24 @@ function renderCareerForm(data, editable) {
     careerItem.appendChild(valueContainer);
     careerDetailsDiv.appendChild(careerItem);
   });
-  
   if (editable) {
+    console.log('Rendering editable form with save button');
     const saveBtn = document.createElement('button');
     saveBtn.textContent = 'Save Career Details';
     saveBtn.onclick = saveCareerDetails;
     careerDetailsDiv.appendChild(saveBtn);
-  } else if (!editable && isLoggedIn()) {
-    // Show edit button for logged-in users (but only admins can actually edit)
-    const editBtn = document.createElement('button');
-    editBtn.textContent = isAdmin() ? 'Edit Career Details' : 'View Only (Admin access required to edit)';
-    editBtn.disabled = !isAdmin();
-    editBtn.style.opacity = isAdmin() ? '1' : '0.6';
+  } else {
+    console.log('Rendering read-only form, isAdmin:', isAdmin());
+    // Show edit button only for admins
     if (isAdmin()) {
+      console.log('Adding edit button for admin');
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit Career Details';
       editBtn.onclick = () => renderCareerForm(data, true);
+      careerDetailsDiv.appendChild(editBtn);
+    } else {
+      console.log('No edit button - user is not admin');
     }
-    careerDetailsDiv.appendChild(editBtn);
   }
   
   // Add a message area under career details
@@ -116,33 +122,53 @@ function renderCareerForm(data, editable) {
 
 // Helper function to check if user is logged in
 function isLoggedIn() {
-  return localStorage.getItem('role') === 'admin' || localStorage.getItem('role') === 'player';
+  const role = localStorage.getItem('role');
+  console.log('Checking login status. Role:', role);
+  return role === 'admin' || role === 'player';
 }
 
 async function loadCareerDetails() {
+  console.log('Loading career details for player:', playerName);
   const supabase = window._supabase;
-  const { data, error } = await supabase
-    .from('player_career')
-    .select('*')
-    .eq('player_name', playerName)
-    .maybeSingle(); // Use maybeSingle to avoid 406 error
-  if (error || !data) {
+  
+  try {
+    const { data, error } = await supabase
+      .from('player_career')
+      .select('*')
+      .eq('player_name', playerName)
+      .maybeSingle(); // Use maybeSingle to avoid 406 error
+    
+    console.log('Supabase response:', { data, error });
+    
+    // Always show career details (read-only for non-admins, editable for admins)
+    if (error || !data) {
+      console.log('No career data found, showing empty form');
+      // Show empty career form - editable for admins, read-only for others
+      renderCareerForm({}, isAdmin());
+      return;
+    }
+    
+    console.log('Career data found, rendering form with data');
+    // Map DB fields to form fields and show them
+    renderCareerForm({
+      'career-age': data.age || '',
+      'career-jersy': data.jersy_no || '',
+      'career-batting': data.batting_style || '',
+      'career-bowling': data.bowling_style || '',
+      'career-best': data.career_best_score || '',
+      'career-year-best': data.year_best_score || ''
+    }, isAdmin()); // Show as editable for admins, read-only for others
+  } catch (err) {
+    console.error('Error loading career details:', err);
+    // Show empty form on error
     renderCareerForm({}, isAdmin());
-    return;
   }
-  // Map DB fields to form fields
-  renderCareerForm({
-    'career-age': data.age || '',
-    'career-jersy': data.jersy_no || '',
-    'career-batting': data.batting_style || '',
-    'career-bowling': data.bowling_style || '',
-    'career-best': data.career_best_score || '',
-    'career-year-best': data.year_best_score || ''
-  }, isAdmin());
 }
 
 function isAdmin() {
-  return localStorage.getItem('role') === 'admin';
+  const role = localStorage.getItem('role');
+  console.log('Checking admin status. Role:', role);
+  return role === 'admin';
 }
 
 async function saveCareerDetails() {
@@ -568,7 +594,15 @@ loadAllLogs();
 loadAllWorkoutLogs();
 
 // Load career details on page load
-loadCareerDetails();
+console.log('Initializing player info page for:', playerName);
+console.log('Supabase client:', window._supabase);
+console.log('User role:', localStorage.getItem('role'));
+
+// Add a small delay to ensure Supabase client is fully loaded
+setTimeout(() => {
+  console.log('Loading career details after delay...');
+  loadCareerDetails();
+}, 100);
 
 // When adding a new log, reload all logs
 async function addLogToSupabaseAndUI(logMsg) {
