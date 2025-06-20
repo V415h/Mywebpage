@@ -39,26 +39,67 @@ const careerDetailsDiv = document.getElementById('career-details');
 
 function renderCareerForm(data, editable) {
   careerDetailsDiv.innerHTML = '';
+  
   careerFields.forEach(f => {
     const val = data && data[f.id] !== undefined ? data[f.id] : '';
-    const label = document.createElement('label');
-    label.textContent = f.label + ': ';
-    const input = document.createElement('input');
-    input.type = f.type;
-    input.id = f.id;
-    input.value = val;
-    input.disabled = !editable;
-    label.appendChild(input);
-    careerDetailsDiv.appendChild(label);
-    careerDetailsDiv.appendChild(document.createElement('br'));
+    
+    // Create the career item container
+    const careerItem = document.createElement('div');
+    careerItem.className = 'career-item';
+    
+    // Create the label
+    const label = document.createElement('div');
+    label.className = 'career-label';
+    label.textContent = f.label;
+    
+    // Create the value container
+    const valueContainer = document.createElement('div');
+    valueContainer.className = 'career-value';
+    
+    if (editable) {
+      // Create editable input
+      const input = document.createElement('input');
+      input.type = f.type;
+      input.id = f.id;
+      input.value = val;
+      input.className = 'career-value editable';
+      input.style.border = '1px solid #e2e8f0';
+      input.style.borderRadius = '6px';
+      input.style.padding = '0.4rem 0.75rem';
+      input.style.width = '100%';
+      input.style.maxWidth = '200px';
+      valueContainer.appendChild(input);
+    } else {
+      // Create read-only display
+      valueContainer.textContent = val || 'Not set';
+      if (!val) {
+        valueContainer.style.color = '#a0aec0';
+        valueContainer.style.fontStyle = 'italic';
+      }
+    }
+    
+    careerItem.appendChild(label);
+    careerItem.appendChild(valueContainer);
+    careerDetailsDiv.appendChild(careerItem);
   });
+  
   if (editable) {
     const saveBtn = document.createElement('button');
     saveBtn.textContent = 'Save Career Details';
-    saveBtn.style.marginTop = '1em';
     saveBtn.onclick = saveCareerDetails;
     careerDetailsDiv.appendChild(saveBtn);
+  } else if (!editable && isLoggedIn()) {
+    // Show edit button for logged-in users (but only admins can actually edit)
+    const editBtn = document.createElement('button');
+    editBtn.textContent = isAdmin() ? 'Edit Career Details' : 'View Only (Admin access required to edit)';
+    editBtn.disabled = !isAdmin();
+    editBtn.style.opacity = isAdmin() ? '1' : '0.6';
+    if (isAdmin()) {
+      editBtn.onclick = () => renderCareerForm(data, true);
+    }
+    careerDetailsDiv.appendChild(editBtn);
   }
+  
   // Add a message area under career details
   let careerMsg = document.getElementById('career-msg');
   if (!careerMsg) {
@@ -66,8 +107,16 @@ function renderCareerForm(data, editable) {
     careerMsg.id = 'career-msg';
     careerMsg.style.marginTop = '1em';
     careerMsg.style.textAlign = 'center';
-    document.getElementById('career-details').appendChild(careerMsg);
+    careerMsg.style.padding = '0.5rem';
+    careerMsg.style.borderRadius = '6px';
+    careerMsg.style.fontSize = '0.9rem';
+    careerDetailsDiv.appendChild(careerMsg);
   }
+}
+
+// Helper function to check if user is logged in
+function isLoggedIn() {
+  return localStorage.getItem('role') === 'admin' || localStorage.getItem('role') === 'player';
 }
 
 async function loadCareerDetails() {
@@ -118,20 +167,27 @@ async function saveCareerDetails() {
   // Upsert (insert or update)
   const { error } = await supabase
     .from('player_career')
-    .upsert([values], { onConflict: 'player_name' });
-  if (!error) {
-    careerMsg.textContent = 'Done!';
-    careerMsg.style.color = 'green';
+    .upsert([values], { onConflict: 'player_name' });  if (!error) {
+    careerMsg.textContent = '✅ Career details saved successfully!';
+    careerMsg.style.color = '#16a085';
+    careerMsg.style.background = '#d4edda';
+    careerMsg.style.border = '1px solid #c3e6cb';
     setTimeout(() => {
       careerMsg.textContent = '';
-    }, 2000);
+      careerMsg.style.background = '';
+      careerMsg.style.border = '';
+    }, 3000);
     loadCareerDetails();
   } else {
-    careerMsg.textContent = 'Error saving: ' + error.message;
-    careerMsg.style.color = 'red';
+    careerMsg.textContent = '❌ Error saving: ' + error.message;
+    careerMsg.style.color = '#721c24';
+    careerMsg.style.background = '#f8d7da';
+    careerMsg.style.border = '1px solid #f5c6cb';
     setTimeout(() => {
       careerMsg.textContent = '';
-    }, 2000);
+      careerMsg.style.background = '';
+      careerMsg.style.border = '';
+    }, 3000);
   }
 }
 

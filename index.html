@@ -3,9 +3,190 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mokku squad</title>
+  <title>Mokku Squad - Cricket Team</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fbff 0%, #e3f2fd 100%);
+      min-height: 100vh;
+    }
+    
+    .main-cards {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 2rem 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .mokku-title-card {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, #1565c0, #0d47a1);
+      color: white;
+      text-align: center;
+      padding: 3rem 2rem;
+      border-radius: 25px;
+      box-shadow: 0 12px 40px rgba(21,101,192,0.3);
+      margin-bottom: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .mokku-title-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .mokku-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin: 0;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .card {
+      background: linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(21,101,192,0.15);
+      border: 1px solid rgba(21,101,192,0.1);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #1565c0, #0d47a1);
+    }
+    
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 48px rgba(21,101,192,0.25);
+    }
+    
+    .card h2 {
+      color: #1565c0;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .card.about h2::before {
+      content: '🏏';
+      font-size: 1.5rem;
+    }
+    
+    .card.tournaments h2::before {
+      content: '🏆';
+      font-size: 1.5rem;
+    }
+    
+    .card.events h2::before {
+      content: '📅';
+      font-size: 1.5rem;
+    }
+    
+    .card p {
+      color: #2c5282;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+    
+    .card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .card li {
+      background: #f0f7ff;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      border-radius: 12px;
+      border-left: 4px solid #1565c0;
+      transition: all 0.2s ease;
+      color: #2c5282;
+    }
+    
+    .card li:hover {
+      background: #e3f2fd;
+      transform: translateX(5px);
+    }
+    
+    #contact-btn {
+      background: linear-gradient(135deg, #1565c0, #0d47a1) !important;
+      color: white !important;
+      border: none !important;
+      border-radius: 15px !important;
+      padding: 1rem 3rem !important;
+      font-size: 1.1rem !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 6px 20px rgba(21,101,192,0.3) !important;
+      text-transform: uppercase !important;
+      letter-spacing: 1px !important;
+    }
+    
+    #contact-btn:hover {
+      background: linear-gradient(135deg, #003c8f, #002171) !important;
+      transform: translateY(-3px) !important;
+      box-shadow: 0 10px 30px rgba(21,101,192,0.4) !important;
+    }
+    
+    .contact-container {
+      display: flex;
+      justify-content: center;
+      margin: 3rem 0 2rem 0;
+      padding: 0 1rem;
+    }
+    
+    @media (max-width: 768px) {
+      .main-cards {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 1rem;
+      }
+      
+      .mokku-title {
+        font-size: 2.5rem;
+      }
+      
+      .mokku-title-card {
+        padding: 2rem 1rem;
+      }
+      
+      .card {
+        padding: 1.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="navbar">
@@ -45,9 +226,10 @@
         <li>Stay tuned for updates!</li>
       </ul>
     </div>
-  </main>
-  <div style="display:flex;justify-content:center;margin:2.5rem 0 1.5rem 0;">
-    <button id="contact-btn" style="background:#fff;color:#1565c0;border:none;border-radius:6px;padding:0.5rem 1.2rem;font-weight:bold;cursor:pointer;">Contact Us</button>
+  </main>  <div class="contact-container">
+    <button id="contact-btn">
+      <i class="fas fa-envelope"></i> Contact Us
+    </button>
   </div>
   <script src="supabaseClient.js"></script>
   <script src="events-preview.js"></script>

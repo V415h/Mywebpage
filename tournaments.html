@@ -3,9 +3,267 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cricket Team - Tournaments</title>
+  <title>Tournaments - Mokku Squad</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fbff 0%, #e3f2fd 100%);
+      min-height: 100vh;
+    }
+    
+    .tournaments-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    .tournaments-header {
+      background: linear-gradient(135deg, #1565c0, #0d47a1);
+      color: white;
+      text-align: center;
+      padding: 3rem 2rem;
+      border-radius: 25px;
+      box-shadow: 0 12px 40px rgba(21,101,192,0.3);
+      margin-bottom: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tournaments-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: rotate 15s linear infinite;
+    }
+    
+    .tournaments-header h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin: 0 0 1rem 0;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .tournaments-header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .main-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 2rem;
+    }
+    
+    .card {
+      background: linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(21,101,192,0.15);
+      border: 1px solid rgba(21,101,192,0.1);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #1565c0, #0d47a1);
+    }
+    
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 48px rgba(21,101,192,0.25);
+    }
+    
+    .card h2 {
+      color: #1565c0;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .card.add-event h2::before {
+      content: '🏆';
+      font-size: 1.5rem;
+    }
+    
+    .card.tournament-list h2::before {
+      content: '📅';
+      font-size: 1.5rem;
+    }
+    
+    .card form {
+      display: grid;
+      gap: 1rem;
+    }
+    
+    .form-group {
+      display: grid;
+      gap: 0.5rem;
+    }
+    
+    .card label {
+      color: #2c5282;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    .card input,
+    .card textarea,
+    .card select {
+      padding: 0.75rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    
+    .card input:focus,
+    .card textarea:focus,
+    .card select:focus {
+      border-color: #1565c0;
+      box-shadow: 0 0 0 3px rgba(21,101,192,0.1);
+      outline: none;
+    }
+    
+    .card button {
+      background: linear-gradient(135deg, #1565c0, #0d47a1);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 15px rgba(21,101,192,0.3);
+    }
+    
+    .card button:hover {
+      background: linear-gradient(135deg, #003c8f, #002171);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(21,101,192,0.4);
+    }
+    
+    .tournament-item {
+      background: #f0f7ff;
+      border: 1px solid #e3f2fd;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+      border-left: 4px solid #1565c0;
+    }
+    
+    .tournament-item:hover {
+      background: #e3f2fd;
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(21,101,192,0.1);
+    }
+    
+    .tournament-title {
+      font-weight: 600;
+      color: #1565c0;
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .tournament-meta {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      display: grid;
+      gap: 0.25rem;
+    }
+    
+    .tournament-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .btn-action {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-join {
+      background: #16a085;
+      color: white;
+    }
+    
+    .btn-join:hover {
+      background: #138d75;
+      transform: translateY(-1px);
+    }
+    
+    .btn-edit {
+      background: #f39c12;
+      color: white;
+    }
+    
+    .btn-edit:hover {
+      background: #e67e22;
+      transform: translateY(-1px);
+    }
+    
+    .btn-delete {
+      background: #e74c3c;
+      color: white;
+    }
+    
+    .btn-delete:hover {
+      background: #c0392b;
+      transform: translateY(-1px);
+    }
+    
+    @media (max-width: 768px) {
+      .tournaments-header {
+        padding: 2rem 1rem;
+      }
+      
+      .tournaments-header h1 {
+        font-size: 2.5rem;
+      }
+      
+      .main-cards {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      .card {
+        padding: 1.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="navbar">

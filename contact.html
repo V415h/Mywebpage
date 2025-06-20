@@ -6,48 +6,99 @@
   <title>Contact Us - Mokku Squad</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    body {
+      background: linear-gradient(135deg, #f8fbff 0%, #e3f2fd 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
     .contact-container {
-      max-width: 420px;
+      max-width: 500px;
       margin: 3rem auto;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(21,101,192,0.08);
-      padding: 2rem 1.5rem;
+      background: linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(21,101,192,0.15);
+      padding: 3rem 2.5rem;
+      border: 1px solid rgba(21,101,192,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .contact-container:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(21,101,192,0.2);
     }
     .contact-container h2 {
       color: #1565c0;
       text-align: center;
-      margin-bottom: 1.5rem;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      text-shadow: 0 2px 4px rgba(21,101,192,0.1);
+      border-bottom: 2px solid #e3f2fd;
+      padding-bottom: 0.5rem;
     }
     .contact-container label {
-      font-weight: 500;
-      margin-bottom: 0.3em;
+      font-weight: 600;
+      color: #2c5282;
+      margin-bottom: 0.5rem;
       display: block;
     }
     .contact-container input, .contact-container textarea {
       width: 100%;
-      padding: 0.5em;
-      border-radius: 6px;
-      border: 1px solid #b3c6e0;
-      margin-bottom: 1em;
-      font-size: 1em;
+      padding: 0.75rem;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .contact-container input:focus, .contact-container textarea:focus {
+      border-color: #1565c0;
+      box-shadow: 0 0 0 3px rgba(21,101,192,0.1);
+      outline: none;
     }
     .contact-container button {
-      background: #1565c0;
+      background: linear-gradient(135deg, #1565c0, #0d47a1);
       color: #fff;
       border: none;
-      border-radius: 6px;
-      padding: 0.7rem 1.5rem;
+      border-radius: 12px;
+      padding: 0.75rem 2rem;
       font-size: 1rem;
-      font-weight: bold;
+      font-weight: 600;
       cursor: pointer;
       width: 100%;
-      margin-top: 0.5em;
+      margin-top: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(21,101,192,0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     .contact-container button:hover {
-      background: #003c8f;
+      background: linear-gradient(135deg, #003c8f, #002171);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(21,101,192,0.4);
     }
     .contact-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      margin-top: 1rem;
+      text-align: center;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(16,185,129,0.3);
+    }
+    @media (max-width: 768px) {
+      .contact-container {
+        margin: 1rem;
+        padding: 2rem 1.5rem;
+      }
+      .contact-container h2 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
       color: green;
       text-align: center;
       margin-top: 1em;

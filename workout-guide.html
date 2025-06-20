@@ -6,48 +6,106 @@
   <title>Workout Guide</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    body {
+      background: linear-gradient(135deg, #f8fbff 0%, #e3f2fd 100%);
+      min-height: 100vh;
+    }
     .workout-guide-container {
-      max-width: 900px;
+      max-width: 1000px;
       margin: 3rem auto;
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 4px 24px rgba(21,101,192,0.10);
-      padding: 2.5rem 2rem;
+      background: linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(21,101,192,0.15);
+      padding: 3rem 2.5rem;
+      border: 1px solid rgba(21,101,192,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .workout-guide-container:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(21,101,192,0.2);
     }
     .workout-guide-title {
       text-align: center;
       color: #1565c0;
-      font-size: 2.5rem;
-      font-weight: bold;
-      margin-bottom: 2rem;
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 3rem;
+      text-shadow: 0 2px 4px rgba(21,101,192,0.1);
+      border-bottom: 3px solid #e3f2fd;
+      padding-bottom: 1rem;
     }
     .muscle-group {
-      margin-bottom: 2.5rem;
+      margin-bottom: 3rem;
+      background: #f8fbff;
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid #e3f2fd;
+      transition: all 0.3s ease;
+    }
+    .muscle-group:hover {
+      background: #e3f2fd;
+      transform: translateX(5px);
     }
     .muscle-group h2 {
-      color: #a259f7;
-      font-size: 1.7rem;
-      margin-bottom: 0.7rem;
+      color: #1565c0;
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #e3f2fd;
+      padding-bottom: 0.5rem;
     }
     .workout-list {
       margin-left: 1.5rem;
-      margin-bottom: 0.7rem;
+      margin-bottom: 1.5rem;
     }
     .workout-list li {
-      margin-bottom: 0.5em;
-      font-size: 1.1em;
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+      color: #2c5282;
+      font-weight: 500;
     }
     .workout-desc {
-      color: #444;
-      font-size: 1em;
-      margin-bottom: 1.2em;
+      color: #1a202c;
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
     }
     .how-to {
-      background: #eaf1fb;
+      background: linear-gradient(135deg, #e3f2fd, #f8fbff);
       border-left: 4px solid #1565c0;
-      padding: 1em 1.2em;
-      border-radius: 8px;
-      margin-bottom: 1.5em;
+      padding: 1.5rem 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(21,101,192,0.1);
+    }
+    .how-to h3 {
+      color: #1565c0;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .how-to p {
+      color: #2c5282;
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+    @media (max-width: 768px) {
+      .workout-guide-container {
+        margin: 1rem;
+        padding: 2rem 1.5rem;
+      }
+      .workout-guide-title {
+        font-size: 2.2rem;
+      }
+      .muscle-group h2 {
+        font-size: 1.6rem;
+      }
+      .muscle-group {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
       font-size: 1em;
     }
   </style>

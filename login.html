@@ -5,6 +5,120 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Cricket Team</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fbff 0%, #e3f2fd 100%);
+      min-height: 100vh;
+    }
+    .login-form {
+      background: linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+      padding: 3rem 3rem;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(21,101,192,0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      min-width: 400px;
+      border: 1px solid rgba(21,101,192,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .login-form:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(21,101,192,0.2);
+    }
+    .login-form h2 {
+      color: #1565c0;
+      margin: 0 0 1.5rem 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      text-shadow: 0 2px 4px rgba(21,101,192,0.1);
+    }
+    .login-form label {
+      font-weight: 600;
+      color: #2c5282;
+      margin-bottom: 0.5rem;
+    }
+    .login-form input {
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .login-form input:focus {
+      border-color: #1565c0;
+      box-shadow: 0 0 0 3px rgba(21,101,192,0.1);
+      outline: none;
+    }
+    .login-form button {
+      background: linear-gradient(135deg, #1565c0, #0d47a1);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(21,101,192,0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .login-form button:hover {
+      background: linear-gradient(135deg, #003c8f, #002171);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(21,101,192,0.4);
+    }
+    #add-user-btn {
+      background: #fff !important;
+      color: #1565c0 !important;
+      border: 2px solid #1565c0 !important;
+      border-radius: 12px !important;
+      padding: 0.75rem 1.5rem !important;
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      margin-top: 1rem !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+      transition: all 0.3s ease !important;
+    }
+    #add-user-btn:hover {
+      background: #1565c0 !important;
+      color: #fff !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 20px rgba(21,101,192,0.4) !important;
+    }
+    #add-user-modal {
+      background: rgba(0,0,0,0.5) !important;
+    }
+    #add-user-modal > div {
+      background: linear-gradient(145deg, #ffffff 0%, #f8fbff 100%) !important;
+      padding: 3rem 3rem !important;
+      border-radius: 20px !important;
+      box-shadow: 0 8px 32px rgba(21,101,192,0.25) !important;
+      min-width: 400px !important;
+      border: 1px solid rgba(21,101,192,0.1) !important;
+    }
+    #add-user-modal h2 {
+      color: #1565c0 !important;
+      margin: 0 0 1.5rem 0 !important;
+      font-size: 2rem !important;
+      font-weight: 700 !important;
+      text-align: center !important;
+    }
+    @media (max-width: 768px) {
+      .login-form {
+        min-width: 300px;
+        padding: 2rem;
+      }
+      #add-user-modal > div {
+        min-width: 300px !important;
+        padding: 2rem !important;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="navbar">
