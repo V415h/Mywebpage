@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Net Run Rate (NRR) Calculator</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fbff 0%, #e3f2fd 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .nrr-container {
+      max-width: 600px;
+      margin: 2.5rem auto;
+      background: linear-gradient(145deg, #fff 0%, #f8fbff 100%);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(21,101,192,0.15);
+      padding: 2.5rem 2rem;
+      border: 1px solid rgba(21,101,192,0.1);
+    }
+    .nrr-section {
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #e3f2fd;
+    }
+    .nrr-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .nrr-section h2 {
+      color: #1565c0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+    }
+    .nrr-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 2%;
+      margin-bottom: 1rem;
+    }
+    .nrr-form label {
+      flex: 1 1 100%;
+      font-weight: 600;
+      color: #2c5282;
+      margin-bottom: 0.2rem;
+    }
+    .nrr-form input {
+      flex: 1 1 48%;
+      padding: 0.7rem;
+      border-radius: 10px;
+      border: 2px solid #e2e8f0;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      font-family: inherit;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .nrr-form input:focus {
+      border-color: #1565c0;
+      box-shadow: 0 0 0 3px rgba(21,101,192,0.1);
+      outline: none;
+    }
+    .nrr-btn {
+      background: linear-gradient(135deg, #1565c0, #0d47a1);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(21,101,192,0.2);
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .nrr-btn:hover {
+      background: linear-gradient(135deg, #003c8f, #002171);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(21,101,192,0.3);
+    }
+    .nrr-result {
+      background: #e3f2fd;
+      color: #1565c0;
+      border-radius: 10px;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(21,101,192,0.08);
+    }
+    @media (max-width: 600px) {
+      .nrr-container {
+        padding: 1.2rem 0.5rem;
+      }
+      .nrr-form input {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <a href="index.html"><img src="assets/logo.png" alt="Team Logo" height="48"></a>
+    </div>
+    <nav style="display:flex;align-items:center;gap:1rem;">
+      <select class="nav-dropdown" onchange="location = this.value;">
+        <option value="index.html">Home</option>
+        <option value="events.html">Events</option>
+        <option value="tournaments.html">Tournaments</option>
+        <option value="players.html">Players</option>
+        <option value="workout-guide.html">Workout Guide</option>
+        <option value="nutrition.html">Nutrition</option>
+        <option value="drive-files.html">Team Files</option>
+        <option value="nrr-calculator.html" selected>NRR Calculator</option>
+      </select>
+    </nav>
+  </header>
+  <main>
+    <div class="nrr-container">
+      <!-- Section 1: Basic NRR Calculator -->
+      <div class="nrr-section">
+        <h2>Basic NRR Calculator</h2>
+        <form class="nrr-form" id="basic-nrr-form" autocomplete="off">
+          <label>Team A: Runs Scored</label>
+          <input type="number" id="runs-scored" placeholder="Runs Scored" min="0" required>
+          <label>Team A: Overs Faced (e.g. 20, 19.3)</label>
+          <input type="text" id="overs-faced" placeholder="Overs Faced" required>
+          <label>Team B: Runs Conceded</label>
+          <input type="number" id="runs-conceded" placeholder="Runs Conceded" min="0" required>
+          <label>Team B: Overs Bowled (e.g. 20, 19.3)</label>
+          <input type="text" id="overs-bowled" placeholder="Overs Bowled" required>
+          <button type="submit" class="nrr-btn">Calculate NRR</button>
+        </form>
+        <div id="basic-nrr-result" class="nrr-result" style="display:none;"></div>
+      </div>
+      <!-- Section 2: NRR Target Calculator (Batting) -->
+      <div class="nrr-section">
+        <h2>NRR Target Calculator (Batting Scenario)</h2>
+        <form class="nrr-form" id="nrr-target-form" autocomplete="off">
+          <label for="target-nrr">Target NRR <span title="The Net Run Rate you want to achieve at the end of the tournament.">[?]</span></label>
+          <input type="number" step="0.01" id="target-nrr" placeholder="e.g. 1.25" required>
+          <label for="total-overs">Total Overs to Bat This Match <span title="Total overs your team will face in this match (e.g. 20)">[?]</span></label>
+          <input type="number" id="total-overs" placeholder="e.g. 20" min="1" required>
+          <label for="runs-so-far">Runs Scored So Far (This Match) <span title="Runs your team has already scored in this match.">[?]</span></label>
+          <input type="number" id="runs-so-far" placeholder="e.g. 75" min="0" required>
+          <label for="overs-played">Overs Faced So Far (This Match) <span title="Overs your team has already faced in this match (e.g. 10.2)">[?]</span></label>
+          <input type="text" id="overs-played" placeholder="e.g. 10.2" required>
+          <label for="runs-conceded">Runs Conceded While Bowling (This Match) <span title="Total runs your team conceded in this match.">[?]</span></label>
+          <input type="number" id="runs-conceded-bat" placeholder="e.g. 120" min="0" required>
+          <label for="overs-bowled">Overs Bowled (This Match) <span title="Total overs your team bowled in this match (e.g. 20)">[?]</span></label>
+          <input type="text" id="overs-bowled-bat" placeholder="e.g. 20" required>
+          <label for="prev-runs-scored">Total Runs Scored in Previous Matches <span title="Sum of all runs your team scored in previous matches.">[?]</span></label>
+          <input type="number" id="prev-runs-scored" placeholder="e.g. 450" min="0" required>
+          <label for="prev-overs-faced">Total Overs Faced in Previous Matches <span title="Sum of all overs your team faced in previous matches (e.g. 80)">[?]</span></label>
+          <input type="text" id="prev-overs-faced" placeholder="e.g. 80" required>
+          <label for="prev-runs-conceded">Total Runs Conceded in Previous Matches <span title="Sum of all runs your team conceded in previous matches.">[?]</span></label>
+          <input type="number" id="prev-runs-conceded" placeholder="e.g. 400" min="0" required>
+          <label for="prev-overs-bowled">Total Overs Bowled in Previous Matches <span title="Sum of all overs your team bowled in previous matches (e.g. 80)">[?]</span></label>
+          <input type="text" id="prev-overs-bowled" placeholder="e.g. 80" required>
+          <button type="submit" class="nrr-btn">Calculate Required Runs</button>
+        </form>
+        <div id="nrr-target-result" class="nrr-result" style="display:none;"></div>
+      </div>
+      <!-- Section 3: NRR Restriction Calculator (Bowling) -->
+      <div class="nrr-section">
+        <h2>NRR Restriction Calculator (Bowling Scenario)</h2>
+        <form class="nrr-form" id="nrr-restrict-form" autocomplete="off">
+          <label for="restrict-target-nrr">Target NRR <span title="The Net Run Rate you want to maintain or achieve after this match.">[?]</span></label>
+          <input type="number" step="0.01" id="restrict-target-nrr" placeholder="e.g. 1.25" required>
+          <label for="restrict-total-overs">Total Overs You Will Bat This Match <span title="Total overs your team will bat in this match (e.g. 20)">[?]</span></label>
+          <input type="number" id="restrict-total-overs" placeholder="e.g. 20" min="1" required>
+          <label for="restrict-your-runs">Runs Scored by Your Team (This Match) <span title="Total runs your team scored in this match.">[?]</span></label>
+          <input type="number" id="restrict-your-runs" placeholder="e.g. 140" min="0" required>
+          <label for="restrict-opponent-total-overs">Total Overs Opponent Will Bat <span title="Total overs the opponent will face in this match (e.g. 20)">[?]</span></label>
+          <input type="number" id="restrict-opponent-total-overs" placeholder="e.g. 20" min="1" required>
+          <label for="restrict-prev-runs-scored">Total Runs Scored in Previous Matches <span title="Sum of all runs your team scored in previous matches.">[?]</span></label>
+          <input type="number" id="restrict-prev-runs-scored" placeholder="e.g. 450" min="0" required>
+          <label for="restrict-prev-overs-faced">Total Overs Faced in Previous Matches <span title="Sum of all overs your team faced in previous matches (e.g. 80)">[?]</span></label>
+          <input type="text" id="restrict-prev-overs-faced" placeholder="e.g. 80" required>
+          <label for="restrict-prev-runs-conceded">Total Runs Conceded in Previous Matches <span title="Sum of all runs your team conceded in previous matches.">[?]</span></label>
+          <input type="number" id="restrict-prev-runs-conceded" placeholder="e.g. 400" min="0" required>
+          <label for="restrict-prev-overs-bowled">Total Overs Bowled in Previous Matches <span title="Sum of all overs your team bowled in previous matches (e.g. 80)">[?]</span></label>
+          <input type="text" id="restrict-prev-overs-bowled" placeholder="e.g. 80" required>
+          <button type="submit" class="nrr-btn">Calculate Max Runs to Concede</button>
+        </form>
+        <div id="nrr-restrict-result" class="nrr-result" style="display:none;"></div>
+      </div>
+    </div>
+  </main>
+  <script>
+    // Utility: Convert overs in decimal (e.g. 19.3) to balls
+    function oversToBalls(overs) {
+      if (typeof overs === 'number') overs = overs.toString();
+      if (!overs.includes('.')) return parseInt(overs, 10) * 6;
+      const [whole, part] = overs.split('.');
+      return parseInt(whole, 10) * 6 + parseInt(part, 10);
+    }
+    // Utility: Convert balls to overs in decimal (e.g. 117 balls = 19.3)
+    function ballsToOvers(balls) {
+      const whole = Math.floor(balls / 6);
+      const part = balls % 6;
+      return part === 0 ? `${whole}` : `${whole}.${part}`;
+    }
+    // Utility: Convert overs in decimal (e.g. 19.3) to float (e.g. 19.5)
+    function oversToFloat(overs) {
+      if (typeof overs === 'number') return overs;
+      if (!overs.includes('.')) return parseInt(overs, 10);
+      const [whole, part] = overs.split('.');
+      return parseInt(whole, 10) + (parseInt(part, 10) / 6);
+    }
+    // Section 1: Basic NRR Calculator
+    document.getElementById('basic-nrr-form').onsubmit = function(e) {
+      e.preventDefault();
+      const runsScored = parseFloat(document.getElementById('runs-scored').value);
+      const oversFaced = oversToFloat(document.getElementById('overs-faced').value);
+      const runsConceded = parseFloat(document.getElementById('runs-conceded').value);
+      const oversBowled = oversToFloat(document.getElementById('overs-bowled').value);
+      if (oversFaced === 0 || oversBowled === 0) {
+        document.getElementById('basic-nrr-result').style.display = 'block';
+        document.getElementById('basic-nrr-result').textContent = 'Overs cannot be zero.';
+        return;
+      }
+      const nrr = ((runsScored / oversFaced) - (runsConceded / oversBowled)).toFixed(3);
+      document.getElementById('basic-nrr-result').style.display = 'block';
+      document.getElementById('basic-nrr-result').textContent = `Net Run Rate: ${nrr}`;
+    };
+    // Section 2: NRR Target Calculator (Batting)
+    document.getElementById('nrr-target-form').onsubmit = function(e) {
+      e.preventDefault();
+      // Inputs for this match
+      const targetNRR = parseFloat(document.getElementById('target-nrr').value);
+      const totalOvers = parseFloat(document.getElementById('total-overs').value);
+      const runsSoFar = parseFloat(document.getElementById('runs-so-far').value);
+      const oversFaced = oversToFloat(document.getElementById('overs-played').value);
+      const runsConceded = parseFloat(document.getElementById('runs-conceded-bat').value);
+      const oversBowled = oversToFloat(document.getElementById('overs-bowled-bat').value);
+      // Inputs for previous matches
+      const prevRunsScored = parseFloat(document.getElementById('prev-runs-scored').value);
+      const prevOversFaced = oversToFloat(document.getElementById('prev-overs-faced').value);
+      const prevRunsConceded = parseFloat(document.getElementById('prev-runs-conceded').value);
+      const prevOversBowled = oversToFloat(document.getElementById('prev-overs-bowled').value);
+
+      if ([targetNRR, totalOvers, runsSoFar, oversFaced, runsConceded, oversBowled, prevRunsScored, prevOversFaced, prevRunsConceded, prevOversBowled].some(x => isNaN(x)) || totalOvers <= 0 || oversBowled <= 0 || prevOversFaced < 0 || prevOversBowled < 0) {
+        document.getElementById('nrr-target-result').style.display = 'block';
+        document.getElementById('nrr-target-result').textContent = 'Please fill all fields with valid numbers. Overs must be greater than zero.';
+        return;
+      }
+      // Aggregate totals
+      const aggRunsScored = prevRunsScored + runsSoFar;
+      const aggOversFaced = prevOversFaced + oversFaced;
+      const aggRunsConceded = prevRunsConceded + runsConceded;
+      const aggOversBowled = prevOversBowled + oversBowled;
+      // Projected totals after this match
+      const finalRunsScored = prevRunsScored + runsSoFar + (totalOvers - oversFaced > 0 ? 0 : 0); // runsSoFar is up to now, will add more below
+      const finalOversFaced = prevOversFaced + totalOvers;
+      const finalRunsConceded = prevRunsConceded + runsConceded;
+      const finalOversBowled = prevOversBowled + oversBowled;
+      // Required total runs to reach target NRR:
+      // Target NRR = (Total Runs Scored / Total Overs Faced) - (Total Runs Conceded / Total Overs Bowled)
+      // So, Required Total Runs Scored = Target NRR × Final Overs Faced + (Final Runs Conceded / Final Overs Bowled) × Final Overs Faced
+      // But since Final Overs Faced = prevOversFaced + totalOvers
+      const requiredTotalRuns = (targetNRR + (finalRunsConceded / finalOversBowled)) * finalOversFaced;
+      const runsNeededThisMatch = Math.ceil(requiredTotalRuns - prevRunsScored);
+      const runsLeft = Math.ceil(requiredTotalRuns - aggRunsScored);
+      const oversLeft = totalOvers - oversFaced;
+      document.getElementById('nrr-target-result').style.display = 'block';
+      if (runsLeft <= 0) {
+        document.getElementById('nrr-target-result').textContent = `You have already achieved the target NRR.`;
+      } else {
+        document.getElementById('nrr-target-result').textContent = `You need a total of ${runsNeededThisMatch} runs in this match. You need ${runsLeft} more runs in the remaining ${oversLeft.toFixed(2)} overs to reach the target NRR.`;
+      }
+    };
+    // Section 3: NRR Restriction Calculator (Bowling)
+    document.getElementById('nrr-restrict-form').onsubmit = function(e) {
+      e.preventDefault();
+      // Inputs for this match
+      const targetNRR = parseFloat(document.getElementById('restrict-target-nrr').value);
+      const yourTotalOvers = parseFloat(document.getElementById('restrict-total-overs').value);
+      const yourRuns = parseFloat(document.getElementById('restrict-your-runs').value);
+      const opponentTotalOvers = parseFloat(document.getElementById('restrict-opponent-total-overs').value);
+      // Inputs for previous matches
+      const prevRunsScored = parseFloat(document.getElementById('restrict-prev-runs-scored').value);
+      const prevOversFaced = oversToFloat(document.getElementById('restrict-prev-overs-faced').value);
+      const prevRunsConceded = parseFloat(document.getElementById('restrict-prev-runs-conceded').value);
+      const prevOversBowled = oversToFloat(document.getElementById('restrict-prev-overs-bowled').value);
+
+      if ([targetNRR, yourTotalOvers, yourRuns, opponentTotalOvers, prevRunsScored, prevOversFaced, prevRunsConceded, prevOversBowled].some(x => isNaN(x)) || yourTotalOvers <= 0 || opponentTotalOvers <= 0 || prevOversFaced < 0 || prevOversBowled < 0) {
+        document.getElementById('nrr-restrict-result').style.display = 'block';
+        document.getElementById('nrr-restrict-result').textContent = 'Please fill all fields with valid numbers. Overs must be greater than zero.';
+        return;
+      }
+      // Aggregate totals
+      const aggRunsScored = prevRunsScored + yourRuns;
+      const aggOversFaced = prevOversFaced + yourTotalOvers;
+      const aggRunsConceded = prevRunsConceded;
+      const aggOversBowled = prevOversBowled;
+      // Projected totals after this match
+      const finalRunsScored = prevRunsScored + yourRuns;
+      const finalOversFaced = prevOversFaced + yourTotalOvers;
+      const finalOversBowled = prevOversBowled + opponentTotalOvers;
+      // Let X = max total runs you can concede in this match
+      // Target NRR = (Total Runs Scored / Total Overs Faced) - (Total Runs Conceded / Total Overs Bowled)
+      // Target NRR = (finalRunsScored / finalOversFaced) - ((prevRunsConceded + X) / finalOversBowled)
+      // Solve for X:
+      // Target NRR + ((prevRunsConceded + X) / finalOversBowled) = (finalRunsScored / finalOversFaced)
+      // (prevRunsConceded + X) / finalOversBowled = (finalRunsScored / finalOversFaced) - Target NRR
+      // prevRunsConceded + X = ((finalRunsScored / finalOversFaced) - Target NRR) * finalOversBowled
+      // X = ((finalRunsScored / finalOversFaced) - Target NRR) * finalOversBowled - prevRunsConceded
+      const maxRunsConceded = Math.floor(((finalRunsScored / finalOversFaced) - targetNRR) * finalOversBowled - prevRunsConceded);
+      document.getElementById('nrr-restrict-result').style.display = 'block';
+      document.getElementById('nrr-restrict-result').textContent = `You can concede up to ${maxRunsConceded} runs in this match to maintain/achieve the target NRR.`;
+    };
+  </script>
+</body>
+</html>
